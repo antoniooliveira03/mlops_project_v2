@@ -5,21 +5,21 @@
 
 raw_data:
   type: pandas.CSVDataSet
-  filepath: hotel-california/data/01_raw/hotel_california.csv
+  filepath: data/01_raw/hotel_california.csv
 
 X_train:
   type: pandas.CSVDataSet
-  filepath: hotel-california/data/01_raw/X_train.csv
+  filepath: data/01_raw/X_train.csv
 
 X_val:
   type: pandas.CSVDataSet
-  filepath: hotel-california/data/01_raw/X_val.csv
+  filepath: data/01_raw/X_val.csv
 
 y_train:
   type: pandas.CSVDataSet
-  filepath: hotel-california/data/01_raw/y_train.csv
+  filepath: data/01_raw/y_train.csv
 
 y_val:
   type: pandas.CSVDataSet
-  filepath: hotel-california/data/01_raw/y_val.csv
+  filepath: data/01_raw/y_val.csv
 
