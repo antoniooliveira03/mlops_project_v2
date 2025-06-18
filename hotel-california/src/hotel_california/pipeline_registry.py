@@ -13,5 +13,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
     # ...
 
     return {
-        "data_split_01": data_split_pipeline,
+        "split": data_split_pipeline,
     }

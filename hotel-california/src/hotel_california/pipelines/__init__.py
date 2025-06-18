@@ -1,7 +1,4 @@
-from hotel_california.pipelines import (
-    # other pipelines if any
-    data_split,
-)
+from . import data_split_01
 
 __all__ = [
     "data_split_01",
