@@ -1,6 +1,7 @@
 from typing import Dict
 from kedro.pipeline import Pipeline
 
+'''
 from project_template.pipelines import (
   #  pipeline name as name,
 
@@ -23,4 +24,4 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "predict": model_predict_stage, 
         "drift_test" : drift_test_stage, 
         "__default__": preprocessing_stage + split_data_stage + feature_selection_stage + model_tuning_stage + model_train_stage,
-    }
+    }'''
