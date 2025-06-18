@@ -1,0 +1,4 @@
+# Split Parameters
+split_ratio: 0.8
+sort_column: ArrivalYear
+target_column: Canceled
