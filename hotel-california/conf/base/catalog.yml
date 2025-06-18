@@ -3,23 +3,23 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-raw_data:
-  type: pandas.CSVDataSet
+hotel_california:
+  type: pandas.CSVDataset
   filepath: data/01_raw/hotel_california.csv
 
-X_train:
-  type: pandas.CSVDataSet
+X_train_data:
+  type: pandas.CSVDataset
   filepath: data/01_raw/X_train.csv
 
-X_val:
-  type: pandas.CSVDataSet
+X_val_data:
+  type: pandas.CSVDataset
   filepath: data/01_raw/X_val.csv
 
-y_train:
-  type: pandas.CSVDataSet
+y_train_data:
+  type: pandas.CSVDataset
   filepath: data/01_raw/y_train.csv
 
-y_val:
-  type: pandas.CSVDataSet
+y_val_data:
+  type: pandas.CSVDataset
   filepath: data/01_raw/y_val.csv
 

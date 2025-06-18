@@ -1,8 +1,8 @@
 from typing import Dict, Any, Tuple
 import pandas as pd
 
-def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    
+def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+
     df = data.copy()
     if "ArrivalYear" not in df.columns:
         raise ValueError("DataFrame must contain 'ArrivalYear' column for chronological sorting.")
