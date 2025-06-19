@@ -7,7 +7,7 @@ from ydata_profiling.config import Settings
 from ydata_profiling.model import BaseDescription, expectation_algorithms
 from ydata_profiling.model.handler import Handler
 from ydata_profiling.utils.dataframe import slugify
-from great_expectations.checkpoint import SimpleCheckpoint
+from great_expectations.checkpoint import Checkpoint
 
 class ExpectationHandler(Handler):
     """Default handler"""
@@ -114,7 +114,7 @@ class ExpectationsReportV3:
                     }
                 ]
             }
-            checkpoint = SimpleCheckpoint(
+            checkpoint = Checkpoint(
                 f"_tmp_checkpoint_{suite_name}",
                 data_context,
                 suite,
