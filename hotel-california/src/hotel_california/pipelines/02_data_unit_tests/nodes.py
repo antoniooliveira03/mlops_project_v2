@@ -1,51 +1,58 @@
-import logging
-from typing import Any, Dict, Tuple
-import numpy as np
 import pandas as pd
-import great_expectations as ge
-import mlflow
+from .utils import ExpectationsReportV3
+from great_expectations.data_context import DataContext
+from great_expectations.checkpoint import Checkpoint
 
-def unit_test(data: pd.DataFrame,): 
 
-    if mlflow.active_run():
-        mlflow.end_run()
+def generate_expectations_from_training(x_train: pd.DataFrame, y_train: pd.Series) -> str:
+    df = x_train.copy()
+    df["target"] = y_train
 
-    df=data.copy(deep=True)
+    data_context = DataContext()  # You can pass path if not in root
+    report = ExpectationsReportV3()
+    report.df = df
 
-    mlflow.set_experiment("data_unit_tests")
+    report.config = type("Config", (), {"title": "training_data"})()  # Quick config mock
+    report.to_expectation_suite(
+        datasource_name="default_pandas_datasource",
+        data_asset_name="training_asset",
+        suite_name="training_suite",
+        data_context=data_context,
+        save_suite=True,
+        run_validation=True,
+        build_data_docs=True,
+    )
 
-    with mlflow.start_run(run_name="verify_data_quality") as run:
-        mlflow.set_tag("mlflow.runName", "verify_data_quality")
+    return "training_suite"  # optional output to link later
+
+
+def validate_new_data_against_suite(x_val: pd.DataFrame, y_val: pd.Series, suite_name: str) -> dict:
+    df = x_val.copy()
+    df["target"] = y_val
+
+    data_context = DataContext()
+    datasource = data_context.get_datasource("default_pandas_datasource")
+    data_asset = datasource.get_asset("validation_asset")
+
+    batch_request = data_asset.build_batch_request()
+
+    checkpoint_config = {
+        "class_name": "Checkpoint",
+        "validations": [
+            {
+                "batch_request": batch_request,
+                "expectation_suite_name": suite_name,
+            }
+        ]
+    }
+
+
+    checkpoint = Checkpoint(
+        f"_tmp_checkpoint_{suite_name}",
+        data_context,
+        name="_tmp_checkpoint",
+        **checkpoint_config,
+    )
     
-        # Log the raw data statistics
-        describe_to_dict=df.describe().to_dict()
-        mlflow.log_dict(describe_to_dict,"describe_data_raw.json")
-    
-        # Perform data quality checks using Great Expectations
-        pd_df_ge = ge.from_pandas(df)
-        assert pd_df_ge.expect_column_values_to_be_between('product_weight_g', min_value=0, max_value=50000, mostly=0.75).success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('product_weight_g').success == False
-        assert pd_df_ge.expect_column_values_to_be_between('product_length_cm', min_value=5, max_value=150, mostly=0.75).success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('product_length_cm').success == False
-        assert pd_df_ge.expect_column_values_to_be_between('product_width_cm', min_value=5, max_value=110, mostly=0.75).success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('product_width_cm').success == False
-        assert pd_df_ge.expect_column_values_to_be_between('product_height_cm', min_value=5, max_value=110, mostly=0.75).success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('product_height_cm').success == False
-        assert pd_df_ge.expect_column_to_exist('order_status').success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('order_status').success == True
-        assert pd_df_ge.expect_column_to_exist('price').success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('customer_id').success == True
-        assert pd_df_ge.expect_column_values_to_not_be_null('product_category_name').success == False
-        assert pd_df_ge.expect_column_values_to_be_in_set("order_status", ['delivered', 'shipped', 'processing', 'canceled', 'invoiced', 'unavailable', 'approved']).success == False
-        assert pd_df_ge.expect_column_values_to_be_in_type_list("customer_id", ["int", "int64"]).success == True
-        
-         # Log the cleaned data statistics
-        describe_to_dict=df.describe().to_dict()
-        mlflow.log_dict(describe_to_dict,"describe_data_cleaned.json")
-    mlflow.end_run()
-
-
-    log = logging.getLogger(__name__)
-    log.info("Data passed on the unit data tests")
-
-    return 0
+    results = checkpoint.run()
+    return results.to_json_dict()

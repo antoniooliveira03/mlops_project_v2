@@ -1,17 +1,21 @@
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import  unit_test
+from .nodes import generate_expectations_from_training, validate_new_data_against_suite
+
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-    return pipeline(
-        [
-            node(
-                func=unit_test,
-                inputs= "Train_Data_Project_MLOPS",
-                outputs= "",
-                name= "unit_data_test",
-            ),
-        ]
-    )
-
+    return pipeline([
+        node(
+            func=generate_expectations_from_training,
+            inputs=["X_train_data", "y_train_data"],
+            outputs="suite_name",
+            name="generate_expectation_suite_node"
+        ),
+        node(
+            func=validate_new_data_against_suite,
+            inputs=["X_val_data", "y_val_data", "suite_name"],
+            outputs="validation_results",
+            name="validate_val_data_node"
+        ),
+    ])
 
