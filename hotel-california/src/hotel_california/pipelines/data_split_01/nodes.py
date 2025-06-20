@@ -4,17 +4,8 @@ import pandas as pd
 def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
 
     df = data.copy()
-    if "ArrivalYear" not in df.columns:
-        raise ValueError("DataFrame must contain 'ArrivalYear' column for chronological sorting.")
-    else:
-        df = df.sort_values("ArrivalYear") 
-    
     # Extract target as Series
     target = df['Canceled']
-    
-    # Optional
-    # numeric = df.select_dtypes(include=['number']).drop(columns=["Canceled"])
-    # notnumeric = df.select_dtypes(exclude=['number']).columns.tolist()
     
     # Drop target from features
     df = df.drop(columns=["Canceled"])
