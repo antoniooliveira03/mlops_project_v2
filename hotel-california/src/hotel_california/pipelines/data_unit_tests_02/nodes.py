@@ -112,10 +112,10 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
         # PartOfGroup: binary 0 or 1
         assert pd_df_gx.expect_column_values_to_be_in_set('PartOfGroup', [0, 1]).success
 
-        # OrderedMealsPerDay: int >=0
+        # OrderedMealsPerDay: int 0-3
         assert pd_df_gx.expect_column_values_to_be_between('OrderedMealsPerDay',
                                                            min_value=0, 
-                                                           max_value=None).success
+                                                           max_value=3).success
         
         # FloorReserved: int 0-6
         assert pd_df_gx.expect_column_values_to_be_between('FloorReserved', 0, 6).success
