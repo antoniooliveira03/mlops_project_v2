@@ -3,10 +3,13 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
+# Base
 hotel_california:
   type: pandas.CSVDataset
   filepath: data/01_raw/hotel_california.csv
 
+
+# Split
 X_train_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/X_train.csv
@@ -23,6 +26,7 @@ y_val_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/y_val.csv
 
+# Unit test results
 unit_test_result_train:
   type: text.TextDataset
   filepath: data/08_reporting/unit_test_result_train.txt
@@ -31,10 +35,31 @@ unit_test_result_val:
   type: text.TextDataset
   filepath: data/08_reporting/unit_test_result_val.txt
 
+# Validated
+X_train_validated:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_train_validated.csv
+
+
+X_val_validated:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_val_validated.csv
+
+
+y_train_validated:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/y_train_validated.csv
+
+
+y_val_validated:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/y_val_validated.csv
+  
+# Preprocessed
 X_train_clean:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/X_train_clean.csv
+  filepath: data/03_primary/X_train_clean.csv
 
 X_val_clean:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/X_val_clean.csv
+  filepath: data/03_primary/X_val_clean.csv

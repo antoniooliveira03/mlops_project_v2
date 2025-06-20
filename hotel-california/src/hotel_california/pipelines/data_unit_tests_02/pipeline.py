@@ -9,28 +9,28 @@ def create_pipeline(**kwargs) -> Pipeline:
             func=unit_test,
             inputs={"df": "X_train_data",
                     "mlruns_path": "params:mlruns_path"},
-            outputs="unit_test_result_train",
+            outputs="X_train_validated",
             name="unit_test_node_train"
         ),
         node(
             func=unit_test,
             inputs={"df": "X_val_data",
                     "mlruns_path": "params:mlruns_path"},
-            outputs="unit_test_result_val",
+            outputs="X_val_validated",
             name="unit_test_node_val"
         ),
         node(
             func=unit_test_y,
             inputs={"y": "y_train_data",
                     "mlruns_path": "params:mlruns_path"},
-            outputs="unit_test_result_train_y",
+            outputs="y_train_validated",
             name="unit_test_node_train_y"
         ),
         node(
             func=unit_test_y,
             inputs={"y": "y_val_data",
                     "mlruns_path": "params:mlruns_path"},
-            outputs="unit_test_result_val_y",
+            outputs="y_val_validated",
             name="unit_test_node_val_y"
         ),
     ])

@@ -160,7 +160,7 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
     log = logging.getLogger(__name__)
     log.info("Success")
 
-    return "All data quality tests passed successfully."
+    return df
         
     
 
@@ -190,4 +190,4 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
         mlflow.log_dict(df["label"].describe().to_dict(), "label_stats.json")
 
     mlflow.end_run()
-    return "Label check passed: values are binary (0 or 1)."
+    return y
