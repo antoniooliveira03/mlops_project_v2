@@ -3,10 +3,10 @@ import mlflow
 import pandas as pd
 import logging
 
-def unit_test(df: pd.DataFrame):
 
-    mlruns_path = '/Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns'
-    mlflow.set_tracking_uri(f'file://{mlruns_path}')
+def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
+
+    mlflow.set_tracking_uri(mlruns_path)
 
     if mlflow.active_run():
         mlflow.end_run()
@@ -163,3 +163,31 @@ def unit_test(df: pd.DataFrame):
     return "All data quality tests passed successfully."
         
     
+
+def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
+    
+    mlflow.set_tracking_uri(mlruns_path)
+
+    if mlflow.active_run():
+        mlflow.end_run()
+
+    mlflow.set_experiment("label_data_tests")
+
+    if isinstance(y, pd.DataFrame):
+        y = y.iloc[:, 0]
+
+    with mlflow.start_run(run_name="label_verification_run") as run:
+        mlflow.set_tag("mlflow.runName", "verify_label_range")
+
+        # Convert to DataFrame for GX
+        df = pd.DataFrame({"label": y})
+        gx_df = gx.dataset.PandasDataset(df)
+
+        # Run expectation: only 0 or 1
+        assert gx_df.expect_column_values_to_be_in_set('label', [0, 1]).success
+
+        # Log basic stats
+        mlflow.log_dict(df["label"].describe().to_dict(), "label_stats.json")
+
+    mlflow.end_run()
+    return "Label check passed: values are binary (0 or 1)."
