@@ -1,144 +1,165 @@
-import pandas as pd
-from .utils import ExpectationsReportV3
 import great_expectations as gx
-from great_expectations.checkpoint import Checkpoint
-from kedro.io import DataCatalog
-from pathlib import Path
-from ydata_profiling import ProfileReport
-from ydata_profiling.expectations_report import ExpectationsReport
-
-
-
-def generate_expectations_from_training(x_train: pd.DataFrame, y_train: pd.Series) -> str:
-
-    data_context = gx.get_context(context_root_dir = "gx")
-
-    profile_X = ProfileReport(x_train, 
-                        title=f"X Profiling Report", 
-                        minimal=True)
-
-    profile_y = ProfileReport(y_train, 
-                        title=f"Y Profiling Report", 
-                        minimal=True)
-
-    ExpectationsReport.to_expectation_suite = ExpectationsReportV3.to_expectation_suite
-
-    # Combine into one DataFrame
-    df = x_train.copy()
-    df["target"] = y_train
-
-    report = ExpectationsReportV3()
-    report.df = df
-    report.config = type("Config", (), {"title": "training_data"})()
-
-    # Generate expectation suite
-    report.to_expectation_suite(
-        datasource_name="expectations_datasource",
-        data_asset_name="training_asset",
-        suite_name="training_suite",
-        data_context=data_context,
-        save_suite=True,
-        run_validation=True,
-        build_data_docs=True,
-    )
-
-
-
+import mlflow
 import pandas as pd
+import logging
 
-def get_validation_results(checkpoint_result):
-    # Extract  validation result
-    validation_result_key, validation_result_data = next(iter(checkpoint_result["run_results"].items()))
+def unit_test(df: pd.DataFrame):
 
-    # validation_result_data contains validation details under 'validation_result'
-    validation_result = validation_result_data.get('validation_result', {})
+    mlruns_path = '/Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns'
+    mlflow.set_tracking_uri(f'file://{mlruns_path}')
 
-    results = validation_result.get("results", [])
-    meta = validation_result.get("meta", {})
-    expectation_suite_name = meta.get('expectation_suite_name', '')
+    if mlflow.active_run():
+        mlflow.end_run()
 
-    # Prepare empty DataFrame with desired columns
-    df_validation = pd.DataFrame(columns=[
-        "Success", "Expectation Type", "Column", "Column Pair", "Max Value",
-        "Min Value", "Element Count", "Unexpected Count", "Unexpected Percent",
-        "Value Set", "Unexpected Value", "Observed Value"
-    ])
+    df = df.copy(deep=True)
+    mlflow.set_experiment("data_unit_tests")
 
-    for result in results:
-        expectation_config = result.get('expectation_config', {})
-        kwargs = expectation_config.get('kwargs', {})
+    with mlflow.start_run(run_name="data_unit_tests_run_") as run:
+        mlflow.set_tag("mlflow.runName", "verify_data_quality")
 
-        observed_value = result.get('result', {}).get('observed_value', None)
-        value_set = kwargs.get('value_set', None)
+        # Log raw stats
+        mlflow.log_dict(df.describe(include='all').to_dict(), "describe_data_raw.json")
 
-        # Identify unexpected values if possible
-        if isinstance(observed_value, list) and isinstance(value_set, (list, set)):
-            unexpected_value = [item for item in observed_value if item not in value_set]
-        else:
-            unexpected_value = []
+        pd_df_gx = gx.dataset.PandasDataset(df)
 
-        df_validation = pd.concat([
-            df_validation,
-            pd.DataFrame.from_dict([{
-                "Success": result.get('success', None),
-                "Expectation Type": expectation_config.get('expectation_type', None),
-                "Column": kwargs.get('column', None),
-                "Column Pair": (kwargs.get('column_A', None), kwargs.get('column_B', None)),
-                "Max Value": kwargs.get('max_value', None),
-                "Min Value": kwargs.get('min_value', None),
-                "Element Count": result.get('result', {}).get('element_count', None),
-                "Unexpected Count": result.get('result', {}).get('unexpected_count', None),
-                "Unexpected Percent": result.get('result', {}).get('unexpected_percent', None),
-                "Value Set": value_set,
-                "Unexpected Value": unexpected_value,
-                "Observed Value": observed_value
-            }])
-        ], ignore_index=True)
+        # BookingID: integer, unique
+        assert pd_df_gx.expect_column_values_to_be_of_type('BookingID', 'int64').success
+        assert pd_df_gx.expect_column_values_to_be_unique('BookingID').success
 
-    return df_validation
+        # ArrivalYear: int, always 2016 (min=max=2016)
+        assert pd_df_gx.expect_column_values_to_be_of_type('ArrivalYear', 'int64').success
+        assert pd_df_gx.expect_column_values_to_be_between('ArrivalYear', 2016, 2016).success
 
-# Validate and save the validation results
-def validate_and_save(x_val, y_val, suite_name, catalog):
-    import great_expectations as gx
-    from great_expectations.checkpoint import Checkpoint
+        # ArrivalMonth: int 1-12
+        assert pd_df_gx.expect_column_values_to_be_between('ArrivalMonth', 1, 12).success
 
-    data_context = gx.get_context(context_root_dir="gx")
+        # ArrivalWeekNumber: int 1-53
+        assert pd_df_gx.expect_column_values_to_be_between('ArrivalWeekNumber', 1, 53).success
 
-    # Create batch request for validation asset (adjust asset name as needed)
-    datasource = data_context.get_datasource("default_pandas_datasource")
-    data_asset = datasource.get_asset("validation_asset")
-    batch_request = data_asset.build_batch_request()
+        # ArrivalDayOfMonth: int 1-31
+        assert pd_df_gx.expect_column_values_to_be_between('ArrivalDayOfMonth', 1, 31).success
 
-    checkpoint_config = {
-        "class_name": "Checkpoint",
-        "validations": [
-            {
-                "batch_request": batch_request,
-                "expectation_suite_name": suite_name,
-            }
-        ]
-    }
+        # ArrivalHour: float or int between 14 and 24
+        assert pd_df_gx.expect_column_values_to_be_between('ArrivalHour', 14, 24).success
 
-    checkpoint = Checkpoint(
-        f"_tmp_checkpoint_{suite_name}",
-        data_context,
-        name=f"_tmp_checkpoint_{suite_name}",
-        **checkpoint_config,
-    )
+        # WeekendStays: int >=0 
+        assert pd_df_gx.expect_column_values_to_be_between('WeekendStays', 
+                                                           min_value=0, 
+                                                           max_value=None).success
 
-    checkpoint_result = checkpoint.run()
+        # WeekdayStays: int >=0 
+        assert pd_df_gx.expect_column_values_to_be_between('WeekdayStays',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # Adults: int >= 0
+        assert pd_df_gx.expect_column_values_to_be_between('Adults',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # Children: int >= 0
+        assert pd_df_gx.expect_column_values_to_be_between('Children',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # Babies: int >= 0
+        assert pd_df_gx.expect_column_values_to_be_between('Babies',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # FirstTimeGuest: binary 0 or 1
+        assert pd_df_gx.expect_column_values_to_be_in_set('FirstTimeGuest', [0, 1]).success
 
-    # Use your parser to get a dataframe with validation results
-    df_validation = get_validation_results(checkpoint_result)
+        # AffiliatedCustomer: binary 0 or 1
+        assert pd_df_gx.expect_column_values_to_be_in_set('AffiliatedCustomer', [0, 1]).success
 
-    # Check if all validations passed
-    if df_validation["Success"].all():
-        dataset_name = f"{suite_name}_validated"
-        if dataset_name in catalog.list():
-            catalog.save(dataset_name, df_validation)
-        else:
-            raise ValueError(f"Dataset '{dataset_name}' not found in catalog.")
-        return df_validation
-    else:
-        print("Validation failed; not saving dataset.")
-        return None
+        # PreviousReservations: int >=0
+        assert pd_df_gx.expect_column_values_to_be_between('PreviousReservations',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # PreviousStays: int >=0 
+        assert pd_df_gx.expect_column_values_to_be_between('PreviousStays',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # PreviousCancellations: int >=0 
+        assert pd_df_gx.expect_column_values_to_be_between('PreviousCancellations',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # DaysUntilConfirmation: int >=0
+        assert pd_df_gx.expect_column_values_to_be_between('DaysUntilConfirmation',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # OnlineReservation: binary 0 or 1
+        assert pd_df_gx.expect_column_values_to_be_in_set('OnlineReservation', [0, 1]).success
+
+        # BookingChanges: int >=0
+        assert pd_df_gx.expect_column_values_to_be_between('BookingChanges',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        # BookingToArrivalDays: int >=0 (max 365)
+        assert pd_df_gx.expect_column_values_to_be_between('BookingToArrivalDays', 0, 365).success
+
+        # ParkingSpacesBooked: binary 0 or 1
+        assert pd_df_gx.expect_column_values_to_be_in_set('ParkingSpacesBooked', [0, 1]).success
+
+        # SpecialRequests: int >=0 (max 5)
+        assert pd_df_gx.expect_column_values_to_be_between('SpecialRequests', 0, 5).success
+
+        # PartOfGroup: binary 0 or 1
+        assert pd_df_gx.expect_column_values_to_be_in_set('PartOfGroup', [0, 1]).success
+
+        # OrderedMealsPerDay: int >=0
+        assert pd_df_gx.expect_column_values_to_be_between('OrderedMealsPerDay',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # FloorReserved: int 0-6
+        assert pd_df_gx.expect_column_values_to_be_between('FloorReserved', 0, 6).success
+
+        # FloorAssigned: int -1 to 6
+        assert pd_df_gx.expect_column_values_to_be_between('FloorAssigned', -1, 6).success
+
+        # DailyRateEuros: float 0 >=
+        assert pd_df_gx.expect_column_values_to_be_between('DailyRateEuros',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # DailyRateUSD: float 0 >=
+        assert pd_df_gx.expect_column_values_to_be_between('DailyRateUSD',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # %PaidinAdvance: float 0-1
+        assert pd_df_gx.expect_column_values_to_be_between('%PaidinAdvance', 0, 1).success
+
+        # CountryofOriginAvgIncomeEuros (Year-2): float >=0
+        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginAvgIncomeEuros (Year-2)',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # CountryofOriginAvgIncomeEuros (Year-1): float 0 >=
+        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginAvgIncomeEuros (Year-1)',
+                                                           min_value=0, 
+                                                           max_value=None).success
+        
+        # CountryofOriginHDI (Year-1): float 0 - 1
+        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginHDI (Year-1)', 0, 1).success
+
+
+
+        
+         # Log the cleaned data statistics
+        describe_to_dict=df.describe().to_dict()
+        mlflow.log_dict(describe_to_dict,"stats_data_cleaned.json")
+        
+    mlflow.end_run()
+    log = logging.getLogger(__name__)
+    log.info("Success")
+
+    return "All data quality tests passed successfully."
+        
+    
