@@ -8,13 +8,13 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
 
     mlflow.set_tracking_uri(mlruns_path)
 
-    if mlflow.active_run():
+    if mlflow.active_run() is not None:
         mlflow.end_run()
 
     df = df.copy(deep=True)
     mlflow.set_experiment("data_unit_tests")
 
-    with mlflow.start_run(run_name="data_unit_tests_run_") as run:
+    with mlflow.start_run(run_name="data_unit_tests_run_", nested=True) as run:
         mlflow.set_tag("mlflow.runName", "verify_data_quality")
 
         # Log raw stats
@@ -156,7 +156,7 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
         describe_to_dict=df.describe().to_dict()
         mlflow.log_dict(describe_to_dict,"stats_data_cleaned.json")
         
-    mlflow.end_run()
+    #mlflow.end_run()
     log = logging.getLogger(__name__)
     log.info("Success")
 
@@ -168,7 +168,7 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     
     mlflow.set_tracking_uri(mlruns_path)
 
-    if mlflow.active_run():
+    if mlflow.active_run() is not None:
         mlflow.end_run()
 
     mlflow.set_experiment("label_data_tests")
@@ -176,7 +176,7 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     if isinstance(y, pd.DataFrame):
         y = y.iloc[:, 0]
 
-    with mlflow.start_run(run_name="label_verification_run") as run:
+    with mlflow.start_run(run_name="label_verification_run", nested=True) as run:
         mlflow.set_tag("mlflow.runName", "verify_label_range")
 
         # Convert to DataFrame for GX
@@ -189,5 +189,5 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
         # Log basic stats
         mlflow.log_dict(df["label"].describe().to_dict(), "label_stats.json")
 
-    mlflow.end_run()
+    #mlflow.end_run()
     return y

@@ -40,26 +40,70 @@ X_train_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_train_validated.csv
 
-
 X_val_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_val_validated.csv
 
-
 y_train_validated:
   type: pandas.CSVDataset
   filepath: data/03_primary/y_train_validated.csv
-
 
 y_val_validated:
   type: pandas.CSVDataset
   filepath: data/03_primary/y_val_validated.csv
   
 # Preprocessed
+
+# === Normalized ===
+X_train_normalized:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_train_normalized.csv
+
+X_val_normalized:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_val_normalized.csv
+
+y_train_normalized:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/y_train_normalized.csv
+
+y_val_normalized:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/y_val_normalized.csv
+
+# === Renamed ===
+X_train_renamed:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_train_renamed.csv
+
+X_val_renamed:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_val_renamed.csv
+
+# === Cleaned (already exists) ===
 X_train_clean:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_train_clean.csv
+  filepath: data/02_intermediate/X_train_clean.csv
 
 X_val_clean:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_val_clean.csv
+  filepath: data/02_intermediate/X_val_clean.csv
+
+# === Datetime Created ===
+X_train_with_datetime:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_train_with_datetime.csv
+
+X_val_with_datetime:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/X_val_with_datetime.csv
+
+# === Final Targets (after merging datetime) ===
+y_train_final:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/y_train_final.csv
+
+y_val_final:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/y_val_final.csv
+
