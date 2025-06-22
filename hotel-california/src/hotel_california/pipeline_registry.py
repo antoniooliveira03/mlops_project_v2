@@ -15,14 +15,14 @@ def register_pipelines() -> Dict[str, Pipeline]:
     data_split_pipeline = data_split.create_pipeline()
     data_unit_tests_pipeline = data_unit_tests.create_pipeline()  
     data_preproc_pipeline = data_preproc.create_pipeline()
-    model_selection = model_selection.create_pipeline()
+    model_selection_pipeline = model_selection.create_pipeline()
     # ...
 
     return {
         "split": data_split_pipeline,
         "unit_tests": data_unit_tests_pipeline,
         "preproc": data_preproc_pipeline,
-        "model_selection": model_selection,
+        "model_selection": model_selection_pipeline,
         "__default__": data_split_pipeline + data_unit_tests_pipeline + data_preproc_pipeline,
         
     }
