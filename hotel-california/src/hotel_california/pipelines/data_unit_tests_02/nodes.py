@@ -4,6 +4,11 @@ import pandas as pd
 import logging
 
 
+import great_expectations as gx
+import mlflow
+import pandas as pd
+import logging
+
 def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
 
     mlflow.set_tracking_uri(mlruns_path)
@@ -18,160 +23,89 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
         mlflow.end_run()
 
     df = df.copy(deep=True)
-    #mlflow.set_experiment("data_unit_tests")
 
-    #mlflow.set_experiment(exp_name)
-    with mlflow.start_run(experiment_id=experiment_id, run_name="data_unit_tests_run_", nested=True) as run:
+    with mlflow.start_run(experiment_id=experiment_id, run_name="data_unit_tests_run", nested=True) as run:
         mlflow.set_tag("mlflow.runName", "verify_data_quality")
 
-        # Log raw stats
+        # Log basic stats
         mlflow.log_dict(df.describe(include='all').to_dict(), "describe_data_raw.json")
 
         pd_df_gx = gx.dataset.PandasDataset(df)
+        gx_results_summary = {}
 
-        # BookingID: integer, unique
-        assert pd_df_gx.expect_column_values_to_be_of_type('BookingID', 'int64').success
-        assert pd_df_gx.expect_column_values_to_be_unique('BookingID').success
+        def log_expectation(expectation_name: str, result: dict):
+            gx_results_summary[expectation_name] = result["success"]
+            path = f"expectation_results/{expectation_name}.json"
+            mlflow.log_dict(result, path)
 
-        # ArrivalYear: int, always 2016 (min=max=2016)
-        assert pd_df_gx.expect_column_values_to_be_of_type('ArrivalYear', 'int64').success
-        assert pd_df_gx.expect_column_values_to_be_between('ArrivalYear', 2016, 2016).success
+        # Each expectation block:
+        result = pd_df_gx.expect_column_values_to_be_of_type('BookingID', 'int64')
+        log_expectation("BookingID_type", result)
+        assert result.success
 
-        # ArrivalMonth: int 1-12
-        assert pd_df_gx.expect_column_values_to_be_between('ArrivalMonth', 1, 12).success
+        result = pd_df_gx.expect_column_values_to_be_unique('BookingID')
+        log_expectation("BookingID_unique", result)
+        assert result.success
 
-        # ArrivalWeekNumber: int 1-53
-        assert pd_df_gx.expect_column_values_to_be_between('ArrivalWeekNumber', 1, 53).success
+        result = pd_df_gx.expect_column_values_to_be_between('ArrivalYear', 2016, 2016)
+        log_expectation("ArrivalYear_fixed_2016", result)
+        assert result.success
 
-        # ArrivalDayOfMonth: int 1-31
-        assert pd_df_gx.expect_column_values_to_be_between('ArrivalDayOfMonth', 1, 31).success
+        # Add all remaining expectations just like above:
+        columns_and_expectations = [
+            ("ArrivalMonth", pd_df_gx.expect_column_values_to_be_between, {"min_value": 1, "max_value": 12}),
+            ("ArrivalWeekNumber", pd_df_gx.expect_column_values_to_be_between, {"min_value": 1, "max_value": 53}),
+            ("ArrivalDayOfMonth", pd_df_gx.expect_column_values_to_be_between, {"min_value": 1, "max_value": 31}),
+            ("ArrivalHour", pd_df_gx.expect_column_values_to_be_between, {"min_value": 14, "max_value": 24}),
+            ("WeekendStays", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("WeekdayStays", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("Adults", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("Children", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("Babies", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("FirstTimeGuest", pd_df_gx.expect_column_values_to_be_in_set, {"value_set": [0, 1]}),
+            ("AffiliatedCustomer", pd_df_gx.expect_column_values_to_be_in_set, {"value_set": [0, 1]}),
+            ("PreviousReservations", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("PreviousStays", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("PreviousCancellations", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("DaysUntilConfirmation", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("OnlineReservation", pd_df_gx.expect_column_values_to_be_in_set, {"value_set": [0, 1]}),
+            ("BookingChanges", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("BookingToArrivalDays", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 365}),
+            ("ParkingSpacesBooked", pd_df_gx.expect_column_values_to_be_in_set, {"value_set": [0, 1]}),
+            ("SpecialRequests", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 5}),
+            ("PartOfGroup", pd_df_gx.expect_column_values_to_be_in_set, {"value_set": [0, 1]}),
+            ("OrderedMealsPerDay", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 3}),
+            ("FloorReserved", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 6}),
+            ("FloorAssigned", pd_df_gx.expect_column_values_to_be_between, {"min_value": -1, "max_value": 6}),
+            ("DailyRateEuros", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("DailyRateUSD", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("%PaidinAdvance", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 1}),
+            ("CountryofOriginAvgIncomeEuros (Year-2)", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("CountryofOriginAvgIncomeEuros (Year-1)", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0}),
+            ("CountryofOriginHDI (Year-1)", pd_df_gx.expect_column_values_to_be_between, {"min_value": 0, "max_value": 1}),
+        ]
 
-        # ArrivalHour: float or int between 14 and 24
-        assert pd_df_gx.expect_column_values_to_be_between('ArrivalHour', 14, 24).success
+        for col, func, kwargs in columns_and_expectations:
+            result = func(col, **kwargs)
+            key = f"{col}_{func.__name__.replace('expect_column_values_to_', '')}"
+            log_expectation(key, result)
+            assert result.success
 
-        # WeekendStays: int >=0 
-        assert pd_df_gx.expect_column_values_to_be_between('WeekendStays', 
-                                                           min_value=0, 
-                                                           max_value=None).success
+        # Log aggregated summary of expectation outcomes
+        mlflow.log_dict(gx_results_summary, "expectation_results_summary.json")
 
-        # WeekdayStays: int >=0 
-        assert pd_df_gx.expect_column_values_to_be_between('WeekdayStays',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # Adults: int >= 0
-        assert pd_df_gx.expect_column_values_to_be_between('Adults',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # Children: int >= 0
-        assert pd_df_gx.expect_column_values_to_be_between('Children',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # Babies: int >= 0
-        assert pd_df_gx.expect_column_values_to_be_between('Babies',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # FirstTimeGuest: binary 0 or 1
-        assert pd_df_gx.expect_column_values_to_be_in_set('FirstTimeGuest', [0, 1]).success
+        # Log cleaned data stats
+        mlflow.log_dict(df.describe().to_dict(), "stats_data_cleaned.json")
 
-        # AffiliatedCustomer: binary 0 or 1
-        assert pd_df_gx.expect_column_values_to_be_in_set('AffiliatedCustomer', [0, 1]).success
-
-        # PreviousReservations: int >=0
-        assert pd_df_gx.expect_column_values_to_be_between('PreviousReservations',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # PreviousStays: int >=0 
-        assert pd_df_gx.expect_column_values_to_be_between('PreviousStays',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # PreviousCancellations: int >=0 
-        assert pd_df_gx.expect_column_values_to_be_between('PreviousCancellations',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # DaysUntilConfirmation: int >=0
-        assert pd_df_gx.expect_column_values_to_be_between('DaysUntilConfirmation',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # OnlineReservation: binary 0 or 1
-        assert pd_df_gx.expect_column_values_to_be_in_set('OnlineReservation', [0, 1]).success
-
-        # BookingChanges: int >=0
-        assert pd_df_gx.expect_column_values_to_be_between('BookingChanges',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        # BookingToArrivalDays: int >=0 (max 365)
-        assert pd_df_gx.expect_column_values_to_be_between('BookingToArrivalDays', 0, 365).success
-
-        # ParkingSpacesBooked: binary 0 or 1
-        assert pd_df_gx.expect_column_values_to_be_in_set('ParkingSpacesBooked', [0, 1]).success
-
-        # SpecialRequests: int >=0 (max 5)
-        assert pd_df_gx.expect_column_values_to_be_between('SpecialRequests', 0, 5).success
-
-        # PartOfGroup: binary 0 or 1
-        assert pd_df_gx.expect_column_values_to_be_in_set('PartOfGroup', [0, 1]).success
-
-        # OrderedMealsPerDay: int 0-3
-        assert pd_df_gx.expect_column_values_to_be_between('OrderedMealsPerDay',
-                                                           min_value=0, 
-                                                           max_value=3).success
-        
-        # FloorReserved: int 0-6
-        assert pd_df_gx.expect_column_values_to_be_between('FloorReserved', 0, 6).success
-
-        # FloorAssigned: int -1 to 6
-        assert pd_df_gx.expect_column_values_to_be_between('FloorAssigned', -1, 6).success
-
-        # DailyRateEuros: float 0 >=
-        assert pd_df_gx.expect_column_values_to_be_between('DailyRateEuros',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # DailyRateUSD: float 0 >=
-        assert pd_df_gx.expect_column_values_to_be_between('DailyRateUSD',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # %PaidinAdvance: float 0-1
-        assert pd_df_gx.expect_column_values_to_be_between('%PaidinAdvance', 0, 1).success
-
-        # CountryofOriginAvgIncomeEuros (Year-2): float >=0
-        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginAvgIncomeEuros (Year-2)',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # CountryofOriginAvgIncomeEuros (Year-1): float 0 >=
-        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginAvgIncomeEuros (Year-1)',
-                                                           min_value=0, 
-                                                           max_value=None).success
-        
-        # CountryofOriginHDI (Year-1): float 0 - 1
-        assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginHDI (Year-1)', 0, 1).success
-        
-         # Log the cleaned data statistics
-        describe_to_dict=df.describe().to_dict()
-        mlflow.log_dict(describe_to_dict,"stats_data_cleaned.json")
-        
     mlflow.end_run()
-    log = logging.getLogger(__name__)
-    log.info("Success")
-
+    logging.getLogger(__name__).info("All GX expectations passed and logged.")
     return df
-        
     
 
 def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     mlflow.set_tracking_uri(mlruns_path)
     exp_name = "label_data_tests"
-    
+
     experiment = mlflow.get_experiment_by_name(exp_name)
     if experiment is None:
         experiment_id = mlflow.create_experiment(exp_name)
@@ -181,6 +115,7 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     if mlflow.active_run() is not None:
         mlflow.end_run()
 
+    # Handle Series or DataFrame input
     if isinstance(y, pd.DataFrame):
         assert "Canceled" in y.columns, "'Canceled' column not found in y"
         label_series = y["Canceled"]
@@ -189,18 +124,28 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     else:
         raise ValueError("y must be a Series or a DataFrame")
 
-    # Ensure DataFrame has a column named 'Canceled'
     label_df = label_series.to_frame(name="Canceled")
-    
+
     with mlflow.start_run(experiment_id=experiment_id, run_name="label_verification_run", nested=True):
         mlflow.set_tag("mlflow.runName", "verify_label_range")
 
-        # Run expectation: only 0 or 1
+        # Apply expectation
         gx_df = gx.dataset.PandasDataset(label_df)
-        assert gx_df.expect_column_values_to_be_in_set("Canceled", [0, 1]).success
+        result = gx_df.expect_column_values_to_be_in_set("Canceled", [0, 1])
 
-        # Log basic stats
+        # Log expectation result
+        mlflow.log_dict(result, "expectation_results/Canceled_in_set.json")
+
+        # Log summary
+        summary = {"Canceled_in_set": result.success}
+        mlflow.log_dict(summary, "label_expectation_summary.json")
+
+        # Log label distribution statistics
         mlflow.log_dict(label_series.describe().to_dict(), "label_stats.json")
 
+        # Assert to fail early if invalid
+        assert result.success
+
     mlflow.end_run()
+    logging.getLogger(__name__).info("Label expectations passed and logged.")
     return y

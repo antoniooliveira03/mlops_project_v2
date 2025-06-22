@@ -46,27 +46,53 @@ X_val_validated:
 
 y_train_validated:
   type: pandas.CSVDataset
-  filepath: data/03_primary/y_train_validated.csv
-
+  filepath: data/02_intermediate/y_train_validated.csv
 
 y_val_validated:
   type: pandas.CSVDataset
-  filepath: data/03_primary/y_val_validated.csv
+  filepath: data/02_intermediate/y_val_validated.csv
   
 # Preprocessed
-X_train_prepared:
+X_train_final:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/X_train_prepared.csv
+  filepath: data/03_primary/X_train_final.csv
 
-X_val_prepared:
+X_val_final:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/X_val_prepared.csv
+  filepath: data/03_primary/X_val_final.csv
 
 # Merged targets with datetime
 y_train_final:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/y_train_prepared.csv
+  filepath: data/03_primary/y_train_final.csv
 
 y_val_final:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/y_val_prepared.csv
+  filepath: data/03_primary/y_val_final.csv
+
+# Unit test results after preprocessing
+unit_test_result_train_final:
+  type: text.TextDataset
+  filepath: data/08_reporting/unit_test_result_train_final.txt
+
+unit_test_result_val_final:
+  type: text.TextDataset
+  filepath: data/08_reporting/unit_test_result_val_final.txt
+
+# Validation results_final
+X_train_validated_final:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/X_train_validated_final.csv
+
+X_val_validated_final:
+  type: pandas.CSVDataset
+  filepath: data/03_primary/X_val_validated_final.csv
+
+# Ingested data
+train_ingested:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/train_ingested.csv
+
+validation_ingested:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/validation_ingested.csv

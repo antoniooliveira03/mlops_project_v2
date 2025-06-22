@@ -9,25 +9,25 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             func=prepare_features,
             inputs="X_train_validated",
-            outputs="X_train_prepared",
+            outputs="X_train_final",
             name="prepare_features_train"
         ),
         node(
             func=prepare_features,
             inputs="X_val_validated",
-            outputs="X_val_prepared",
+            outputs="X_val_final",
             name="prepare_features_val"
         ),
         node(
             func=prepare_target,
-            inputs=["y_train_validated", "X_train_prepared"],
-            outputs="y_train_prepared",
+            inputs=["y_train_validated", "X_train_final"],
+            outputs="y_train_final",
             name="prepare_target_train"
         ),
         node(
             func=prepare_target,
-            inputs=["y_val_validated", "X_val_prepared"],
-            outputs="y_val_prepared",
+            inputs=["y_val_validated", "X_val_final"],
+            outputs="y_val_final",
             name="prepare_target_val"
         ),
     ])
