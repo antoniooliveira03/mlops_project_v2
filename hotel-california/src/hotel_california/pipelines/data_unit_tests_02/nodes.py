@@ -155,9 +155,6 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
         
         # CountryofOriginHDI (Year-1): float 0 - 1
         assert pd_df_gx.expect_column_values_to_be_between('CountryofOriginHDI (Year-1)', 0, 1).success
-
-
-
         
          # Log the cleaned data statistics
         describe_to_dict=df.describe().to_dict()
@@ -172,37 +169,38 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
     
 
 def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
-    
     mlflow.set_tracking_uri(mlruns_path)
     exp_name = "label_data_tests"
-    # Get experiment info, create if not exists
+    
     experiment = mlflow.get_experiment_by_name(exp_name)
     if experiment is None:
         experiment_id = mlflow.create_experiment(exp_name)
     else:
         experiment_id = experiment.experiment_id
-        
+
     if mlflow.active_run() is not None:
         mlflow.end_run()
 
-    #mlflow.set_experiment("label_data_tests")
-
-    #mlflow.set_experiment(exp_name)
     if isinstance(y, pd.DataFrame):
-        y = y.iloc[:, 0]
+        assert "Canceled" in y.columns, "'Canceled' column not found in y"
+        label_series = y["Canceled"]
+    elif isinstance(y, pd.Series):
+        label_series = y
+    else:
+        raise ValueError("y must be a Series or a DataFrame")
 
-    with mlflow.start_run(experiment_id=experiment_id, run_name="label_verification_run", nested=True) as run:
+    # Ensure DataFrame has a column named 'Canceled'
+    label_df = label_series.to_frame(name="Canceled")
+    
+    with mlflow.start_run(experiment_id=experiment_id, run_name="label_verification_run", nested=True):
         mlflow.set_tag("mlflow.runName", "verify_label_range")
 
-        # Convert to DataFrame for GX
-        df = pd.DataFrame({"label": y})
-        gx_df = gx.dataset.PandasDataset(df)
-
         # Run expectation: only 0 or 1
-        assert gx_df.expect_column_values_to_be_in_set('label', [0, 1]).success
+        gx_df = gx.dataset.PandasDataset(label_df)
+        assert gx_df.expect_column_values_to_be_in_set("Canceled", [0, 1]).success
 
         # Log basic stats
-        mlflow.log_dict(df["label"].describe().to_dict(), "label_stats.json")
+        mlflow.log_dict(label_series.describe().to_dict(), "label_stats.json")
 
     mlflow.end_run()
     return y

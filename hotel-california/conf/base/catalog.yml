@@ -40,11 +40,9 @@ X_train_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_train_validated.csv
 
-
 X_val_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_val_validated.csv
-
 
 y_train_validated:
   type: pandas.CSVDataset
@@ -56,10 +54,19 @@ y_val_validated:
   filepath: data/03_primary/y_val_validated.csv
   
 # Preprocessed
-X_train_clean:
+X_train_prepared:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_train_clean.csv
+  filepath: data/02_intermediate/X_train_prepared.csv
 
-X_val_clean:
+X_val_prepared:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_val_clean.csv
+  filepath: data/02_intermediate/X_val_prepared.csv
+
+# Merged targets with datetime
+y_train_final:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/y_train_prepared.csv
+
+y_val_final:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/y_val_prepared.csv

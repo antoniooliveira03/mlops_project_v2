@@ -4,9 +4,10 @@ import pandas as pd
 def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
 
     df = data.copy()
-    # Extract target as Series
-    target = df['Canceled']
-    
+
+    # Extract target + BookingID
+    target = df[["BookingID", "Canceled"]]
+
     # Drop target from features
     df = df.drop(columns=["Canceled"])
     
