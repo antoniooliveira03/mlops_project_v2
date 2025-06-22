@@ -1,4 +1,3 @@
-
 import pandas as pd
 import logging
 from typing import Dict, Tuple, Any
@@ -21,7 +20,8 @@ def model_train(X_train: pd.DataFrame,
                 y_train: pd.DataFrame, 
                 y_test: pd.DataFrame,
                 parameters: Dict[str, Any], best_columns):
-    """Trains a model on the given data and saves it to the given model path.
+    """
+    Trains a model on the given data and saves it to the given model path.
 
     Args:
     --
