@@ -7,14 +7,21 @@ import logging
 def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
 
     mlflow.set_tracking_uri(mlruns_path)
-
-    if mlflow.active_run():
+    exp_name = "data_unit_tests"
+    experiment = mlflow.get_experiment_by_name(exp_name)
+    if experiment is None:
+        experiment_id = mlflow.create_experiment(exp_name)
+    else:
+        experiment_id = experiment.experiment_id
+    
+    if mlflow.active_run() is not None:
         mlflow.end_run()
 
     df = df.copy(deep=True)
-    mlflow.set_experiment("data_unit_tests")
+    #mlflow.set_experiment("data_unit_tests")
 
-    with mlflow.start_run(run_name="data_unit_tests_run_") as run:
+    #mlflow.set_experiment(exp_name)
+    with mlflow.start_run(experiment_id=experiment_id, run_name="data_unit_tests_run_", nested=True) as run:
         mlflow.set_tag("mlflow.runName", "verify_data_quality")
 
         # Log raw stats
@@ -167,16 +174,24 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
 def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
     
     mlflow.set_tracking_uri(mlruns_path)
-
-    if mlflow.active_run():
+    exp_name = "label_data_tests"
+    # Get experiment info, create if not exists
+    experiment = mlflow.get_experiment_by_name(exp_name)
+    if experiment is None:
+        experiment_id = mlflow.create_experiment(exp_name)
+    else:
+        experiment_id = experiment.experiment_id
+        
+    if mlflow.active_run() is not None:
         mlflow.end_run()
 
-    mlflow.set_experiment("label_data_tests")
+    #mlflow.set_experiment("label_data_tests")
 
+    #mlflow.set_experiment(exp_name)
     if isinstance(y, pd.DataFrame):
         y = y.iloc[:, 0]
 
-    with mlflow.start_run(run_name="label_verification_run") as run:
+    with mlflow.start_run(experiment_id=experiment_id, run_name="label_verification_run", nested=True) as run:
         mlflow.set_tag("mlflow.runName", "verify_label_range")
 
         # Convert to DataFrame for GX
