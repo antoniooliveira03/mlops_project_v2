@@ -1,1 +1,5 @@
 mlruns_path: "mlruns"
+to_feature_store: True
+train_prefix: "train"
+val_prefix: "val"
+
