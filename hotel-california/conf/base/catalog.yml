@@ -96,7 +96,14 @@ train_ingested:
 validation_ingested:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/validation_ingested.csv
-  filepath: data/03_primary/X_val_clean.csv
+
+
+# Feature selection
+selected_features:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: pickle.PickleDataset
+    filepath: data/04_feature/selected_features.pkl
 
 # Production
 production_columns:
