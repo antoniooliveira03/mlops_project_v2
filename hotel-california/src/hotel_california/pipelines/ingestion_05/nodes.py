@@ -99,7 +99,7 @@ def build_expectation_suite(expectation_suite_name: str, feature_group: str) -> 
                 expectation_type="expect_table_columns_to_match_ordered_list",
                 kwargs={"column_list": [
                     'bookingid', 'arrivaltime', 'arrivalyear', 'arrivalmonth', 'arrivalweeknumber',
-                    'arrivaldayofmonth', 'arrivalhour', 'weekendstays', 'weekdaystays'
+                    'arrivaldayofmonth', 'arrivalhour', 'weekendstays', 'weekdaystays',
                     'totalstaydays', 'arrivaltimeofday'
                 ]}
             )
@@ -189,7 +189,7 @@ def build_expectation_suite(expectation_suite_name: str, feature_group: str) -> 
                 )
             )
 
-        for col in ['orderedmealsperday', 'floorreserved', 'floorassigned']:
+        for col in ['orderedmealsperday', 'floorreserved']:
             expectation_suite.add_expectation(
                 ExpectationConfiguration(
                     expectation_type="expect_column_values_to_be_of_type",
@@ -202,6 +202,19 @@ def build_expectation_suite(expectation_suite_name: str, feature_group: str) -> 
                     kwargs={"column": col, "min_value": 0},
                 )
             )
+        
+        expectation_suite.add_expectation(
+            ExpectationConfiguration(
+                expectation_type="expect_column_values_to_be_of_type",
+                kwargs={"column": "floorassigned", "type_": "int64"},
+            )
+        )
+        expectation_suite.add_expectation(
+            ExpectationConfiguration(
+                expectation_type="expect_column_values_to_be_between",
+                kwargs={"column": "floorassigned", "min_value": -1},
+            )
+        )
 
         expectation_suite.add_expectation(
             ExpectationConfiguration(
@@ -369,7 +382,7 @@ def build_expectation_suite(expectation_suite_name: str, feature_group: str) -> 
         expectation_suite.add_expectation(
             ExpectationConfiguration(
                 expectation_type="expect_table_columns_to_match_ordered_list",
-                kwargs={"column_list": ['bookingid', target_column, 'arrivaltime']},
+                kwargs={"column_list": ['bookingid', 'arrivaltime', target_column]},
             )
         )
         expectation_suite.add_expectation(
@@ -515,25 +528,23 @@ def ingestion(df: pd.DataFrame, parameters: dict, target_df: pd.DataFrame = None
         if target_df is not None else None,
     }
 
-    for group_name, data in feature_groups.items():
-        if data is None and 'arrivaltime' in data.columns:
-            data['arrivaltime'] = pd.to_datetime(data['arrivaltime'], errors='coerce')
-            full_group_name = f"{prefix}_{group_name}" if prefix else group_name
-            to_feature_store(
-                data=data,
-                group_name=full_group_name)
-
 
     if parameters.get("to_feature_store", False):
         for group_name, data in feature_groups.items():
-            to_feature_store(
-                data=data,
-                group_name=group_name,
-                feature_group_version=parameters.get("feature_group_versions", {}).get(group_name, 1),
-                description=parameters.get("feature_descriptions", {}).get(group_name, ""),
-                group_description=parameters.get("feature_descriptions", {}).get(group_name, {}),
-                validation_expectation_suite=validation_suites[group_name],
-                credentials_input=credentials["feature_store"]
-            )
+            if data is not None:
+            # Ensure 'arrivaltime' is datetime before inserting
+                if 'arrivaltime' in data.columns:
+                    data['arrivaltime'] = pd.to_datetime(data['arrivaltime'], errors='coerce')
+
+                    full_group_name = f"{prefix}_{group_name}" if prefix else group_name
+                    to_feature_store(
+                        data=data,
+                        group_name=full_group_name,
+                        feature_group_version=parameters.get("feature_group_versions", {}).get(group_name, 2),
+                        description=parameters.get("feature_descriptions", {}).get(group_name, ""),
+                        group_description=parameters.get("feature_descriptions", {}).get(group_name, {}),
+                        validation_expectation_suite=validation_suites[group_name],
+                        credentials_input=credentials["feature_store"]
+                    )
     
-    return df
+    return df, target_df

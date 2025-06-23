@@ -25,6 +25,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "unit_tests": data_unit_tests_pipeline,
         "preproc": data_preproc_pipeline,
         "unit_tests_afterprep": data_unit_tests_afterprep_pipeline,
-        "ingestion": ingestion_pipeline,
-        "__default__": data_split_pipeline + data_unit_tests_pipeline + data_preproc_pipeline + data_unit_tests_afterprep_pipeline + ingestion_pipeline,
+        #"ingestion": ingestion_pipeline,
+        "__default__": data_split_pipeline + data_unit_tests_pipeline + data_preproc_pipeline + data_unit_tests_afterprep_pipeline #+ ingestion_pipeline,
     }
