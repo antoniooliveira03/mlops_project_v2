@@ -40,59 +40,51 @@ X_train_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_train_validated.csv
 
+
 X_val_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_val_validated.csv
 
+
 y_train_validated:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/y_train_validated.csv
+  filepath: data/03_primary/y_train_validated.csv
+
 
 y_val_validated:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/y_val_validated.csv
+  filepath: data/03_primary/y_val_validated.csv
   
 # Preprocessed
-X_train_final:
+X_train_clean:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_train_final.csv
+  filepath: data/03_primary/X_train_clean.csv
 
-X_val_final:
+X_val_clean:
   type: pandas.CSVDataset
-  filepath: data/03_primary/X_val_final.csv
+  filepath: data/03_primary/X_val_clean.csv
 
-# Merged targets with datetime
-y_train_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/y_train_final.csv
+# Production
+production_columns:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: pickle.PickleDataset
+    filepath: data/06_models/production_cols.pkl
 
-y_val_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/y_val_final.csv
+production_model:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: pickle.PickleDataset
+    filepath: data/06_models/production_model.pkl
 
-# Unit test results after preprocessing
-unit_test_result_train_final:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_train_final.txt
+production_model_metrics:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: json.JSONDataset
+    filepath: data/08_reporting/production_model_metrics.json
 
-unit_test_result_val_final:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_val_final.txt
-
-# Validation results_final
-X_train_validated_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/X_train_validated_final.csv
-
-X_val_validated_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/X_val_validated_final.csv
-
-# Ingested data
-train_ingested:
-  type: pandas.CSVDataset
-  filepath: data/02_intermediate/train_ingested.csv
-
-validation_ingested:
-  type: pandas.CSVDataset
-  filepath: data/02_intermediate/validation_ingested.csv
+output_plot:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/shap_plot.png
