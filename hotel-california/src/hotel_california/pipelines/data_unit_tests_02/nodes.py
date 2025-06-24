@@ -36,7 +36,7 @@ def unit_test(df: pd.DataFrame, mlruns_path: str) -> str:
         def log_expectation(expectation_name: str, result: dict):
             gx_results_summary[expectation_name] = result["success"]
             path = f"expectation_results/{expectation_name}.json"
-            mlflow.log_dict(result, path)
+            mlflow.log_dict(result.to_json_dict(), path)
 
         # Each expectation block:
         result = pd_df_gx.expect_column_values_to_be_of_type('BookingID', 'int64')
@@ -134,7 +134,7 @@ def unit_test_y(y: pd.Series, mlruns_path: str) -> str:
         result = gx_df.expect_column_values_to_be_in_set("Canceled", [0, 1])
 
         # Log expectation result
-        mlflow.log_dict(result, "expectation_results/Canceled_in_set.json")
+        mlflow.log_dict(result.to_json_dict(), "expectation_results/Canceled_in_set.json")
 
         # Log summary
         summary = {"Canceled_in_set": result.success}
