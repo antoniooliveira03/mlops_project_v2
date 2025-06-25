@@ -157,6 +157,10 @@ output_plot:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
     type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/output_plot.png
+
+shap_plot:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
+  dataset:
+    type: matplotlib.MatplotlibWriter
     filepath: data/08_reporting/shap_plot.png
-
-
