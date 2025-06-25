@@ -151,5 +151,5 @@ df_with_predict:
   filepath: data/07_predict/df_with_predict.csv
 
 describe_servings:
-  type: json.JSONDataSet
+  type: json.JSONDataset
   filepath: data/08_reporting/describe_servings.json
