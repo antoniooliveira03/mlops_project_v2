@@ -19,7 +19,9 @@ def model_train(X_train: pd.DataFrame,
                 X_test: pd.DataFrame, 
                 y_train: pd.DataFrame, 
                 y_test: pd.DataFrame,
-                parameters: Dict[str, Any], best_columns):
+                use_feature_selection,
+                parameters: Dict[str, Any],
+                best_columns):
     """
     Trains a model on the given data and saves it to the given model path.
 
@@ -48,22 +50,22 @@ def model_train(X_train: pd.DataFrame,
         with open(os.path.join(os.getcwd(), 'data', '06_models', 'champion_model.pkl'), 'rb') as f:
             classifier = pickle.load(f)
     except:
-        classifier = RandomForestClassifier(**parameters['baseline_model_params'])
+        classifier = RandomForestClassifier(**parameters)
 
     results_dict = {}
     with mlflow.start_run(experiment_id=experiment_id, nested=True):
-        if parameters["use_feature_selection"]:
+        if use_feature_selection:
             logger.info(f"Using feature selection in model train...")
             X_train = X_train[best_columns]
             X_test = X_test[best_columns]
-        y_train = np.ravel(y_train)
+        y_train = np.ravel(y_train['canceled'])
         model = classifier.fit(X_train, y_train)
         # making predictions
         y_train_pred = model.predict(X_train)
         y_test_pred = model.predict(X_test)
         # evaluating model
         acc_train = accuracy_score(y_train, y_train_pred)
-        acc_test = accuracy_score(y_test, y_test_pred)
+        acc_test = accuracy_score(y_test['canceled'], y_test_pred)
         # saving results in dict
         results_dict['classifier'] = classifier.__class__.__name__
         results_dict['train_score'] = acc_train
