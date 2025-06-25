@@ -20,7 +20,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                         "params:hyperparameters",
                         "selected_features",
                         "params:use_feature_selection"],
-                outputs=["champion_model_optuna", "champion_columns_optuna" ,"champion_model_metrics_optuna"],
+                outputs=["champion_model", "champion_column" ,"champion_model_metrics"],
                 name="model_selection",
             ),
         ]
