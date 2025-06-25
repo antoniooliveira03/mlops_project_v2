@@ -114,7 +114,7 @@ def champion_callback(study, frozen_trial):
         else:
             logger.info(f"Initial trial {frozen_trial.number} achieved value: {frozen_trial.value}")
 
-def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict) -> None:
+def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict, use_feature_selection: bool = True) -> None:
 
     path = Path(yaml_path)
     if not path.exists():
@@ -126,11 +126,12 @@ def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict
     # Update with new model info
     config['model'] = new_model_name
     config['model_params'] = new_params
+    config['use_feature_selection'] = use_feature_selection
 
     with open(path, "w") as f:
         yaml.safe_dump(config, f)
 
-    logger.info(f"Updated {yaml_path} with new model '{new_model_name}' and params.")
+    logger.info(f"Updated {yaml_path} with new model '{new_model_name}', params, and use_feature_selection={use_feature_selection}.")
 
 
 def model_selection(X_train: pd.DataFrame, 
@@ -142,6 +143,7 @@ def model_selection(X_train: pd.DataFrame,
                     champion_model: Any,
                     parameters_grid: Dict[str, Any],
                     best_columns,
+                    use_feature_selection,
                     n_trials: int = 20) -> Any:
 
     y_train = np.ravel(y_train[target_name])
@@ -192,7 +194,7 @@ def model_selection(X_train: pd.DataFrame,
             # Use champion_callback here to log improvements during tuning
             study.optimize(objective_wrapper, n_trials=n_trials, callbacks=[champion_callback])
 
-            if best_columns is not None:
+            if use_feature_selection:
                 X_train_fit = X_train[best_columns]
                 X_test_fit = X_test[best_columns]
             else:
