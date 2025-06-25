@@ -229,14 +229,24 @@ def model_selection(X_train: pd.DataFrame,
             logger.info("Best model precision on validation set: %0.2f%%", metrics['precision_test'] * 100)
             logger.info("Best model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
 
-    if champion_dict['f1_score_test'] < best_score:
-        logger.info(f"New champion model: {best_model_name} with test F1 {best_score:.4f} (previous {champion_dict['f1_score_test']:.4f})")
-        # Update parameters.yml with new champion model info
-        update_parameters_yaml(
-            yaml_path="conf/base/parameters.yml",
-            new_model_name=best_model_name,
-            new_params=best_params
-        )
-        return best_model, best_columns, metrics
+        if champion_dict['f1_score_test'] < best_score:
+            logger.info(f"New champion model: {best_model_name} with test F1 {best_score:.4f} (previous {champion_dict['f1_score_test']:.4f})")
+
+            # Update YAML
+            update_parameters_yaml(
+                yaml_path="conf/base/parameters.yml",
+                new_model_name=best_model_name,
+                new_params=best_params
+            )
+
+            # Register the new champion model in MLflow Model Registry
+            register_model(
+                model_path=f"runs:/{best_run_id}/model",
+                model_name="final_model",
+                model_tag="production",
+                model_alias="champion"
+            )
+
+            return best_model, best_columns, metrics
     else:
         logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f}")
