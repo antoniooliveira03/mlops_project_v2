@@ -21,11 +21,14 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+# override Optuna's default logging to ERROR only
+optuna.logging.set_verbosity(optuna.logging.ERROR)
+
 models_dict = {
-        'RandomForestClassifier': RandomForestClassifier(),
-        # 'GradientBoostingClassifier': GradientBoostingClassifier(),
-        # 'LogisticRegression': LogisticRegression()
-    }
+    'RandomForestClassifier': RandomForestClassifier(),
+    # 'GradientBoostingClassifier': GradientBoostingClassifier(),
+    # 'LogisticRegression': LogisticRegression()
+}
 
 def _get_or_create_experiment_id(experiment_name: str) -> str:
     exp = mlflow.get_experiment_by_name(experiment_name)
@@ -79,6 +82,31 @@ def objective(trial, X_train, X_val, y_train, y_val, model_name, base_model, par
     mlflow.log_metric("val_f1_score", f1)
 
     return f1
+
+def champion_callback(study, frozen_trial):
+    """
+    Logging callback that will report when a new trial iteration improves upon existing
+    best trial values.
+
+    Note: This callback is not intended for use in distributed computing systems such as Spark
+    or Ray due to the micro-batch iterative implementation for distributing trials to a cluster's
+    workers or agents.
+    The race conditions with file system state management for distributed trials will render
+    inconsistent values with this callback.
+    """
+
+    winner = study.user_attrs.get("winner", None)
+
+    if study.best_value and winner != study.best_value:
+        study.set_user_attr("winner", study.best_value)
+        if winner:
+            improvement_percent = (abs(winner - study.best_value) / study.best_value) * 100
+            logger.info(
+                f"Trial {frozen_trial.number} achieved value: {frozen_trial.value} with "
+                f"{improvement_percent: .4f}% improvement"
+            )
+        else:
+            logger.info(f"Initial trial {frozen_trial.number} achieved value: {frozen_trial.value}")
 
 def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict) -> None:
 
@@ -146,14 +174,19 @@ def model_selection(X_train: pd.DataFrame,
 
         study = optuna.create_study(direction='maximize')
         with mlflow.start_run(experiment_id=experiment_id, nested=True) as run:
-            mlflow.set_tag("model_name", model_name)
+            
+            # Log tags
             mlflow.set_tag("task", "Classification")
             mlflow.set_tag("stage", "hyperparameter_tuning_optuna")
+            mlflow.set_tag("optimizer_engine", "optuna")
+            mlflow.set_tag("model_family", model_name)
+            mlflow.set_tag("feature_set_version", 1)
             run_id = mlflow.active_run().info.run_id
-            study.optimize(objective_wrapper, n_trials=n_trials)
+            
+            # Use champion_callback here to log improvements during tuning
+            study.optimize(objective_wrapper, n_trials=n_trials, callbacks=[champion_callback])
 
-            trial = study.best_trial
-            model = base_model.__class__(**trial.params)
+            model = base_model.__class__(**study.best_params)
             model.fit(X_train[best_columns], y_train)
 
             y_train_pred = model.predict(X_train[best_columns])
@@ -206,4 +239,4 @@ def model_selection(X_train: pd.DataFrame,
         )
         return best_model
     else:
-        logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f} (candidate {best_score:.4f})")
+        logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f}")
