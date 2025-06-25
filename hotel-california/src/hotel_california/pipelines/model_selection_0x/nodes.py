@@ -81,7 +81,7 @@ def model_selection(X_train: pd.DataFrame,
                     y_test: pd.DataFrame,
                     target_name: str,
                     champion_dict: Dict[str, Any],
-                    champion_model : pickle.Pickler,
+                    champion_model: Any,
                     parameters_grid: Dict[str, Any],
                     best_columns,
                     n_trials: int = 20) -> Any:
@@ -92,6 +92,7 @@ def model_selection(X_train: pd.DataFrame,
     }
 
     initial_results = {}   
+
 
     with open('conf/local/mlflow.yml') as f:
         experiment_name = yaml.load(f, Loader=yaml.SafeLoader)['tracking']['experiment']['name']
@@ -113,12 +114,12 @@ def model_selection(X_train: pd.DataFrame,
 
     best_model_name = max(initial_results, key=initial_results.get)
     logger.info(f"Best base model: {best_model_name} with score {initial_results[best_model_name]:.4f}")
+    base_model = models_dict[best_model_name]
 
     logger.info('Starting hyperparameter tuning on best model with Optuna')
 
+    # Perform hyperparameter tuning using Optuna
     param_grid = parameters_grid['hyperparameters'].get(best_model_name, {})
-    base_model = models_dict[best_model_name]
-
     def objective_wrapper(trial):
         return objective(
             trial,
@@ -136,6 +137,8 @@ def model_selection(X_train: pd.DataFrame,
     study = optuna.create_study(direction='maximize')
     mlflow.set_experiment(experiment_name)
     with mlflow.start_run(experiment_id=experiment_id, nested=True):
+        y_train = np.ravel(y_train[target_name])
+        y_test = np.ravel(y_test[target_name])
         study.optimize(objective_wrapper, n_trials=n_trials)
 
         best_trial = study.best_trial
