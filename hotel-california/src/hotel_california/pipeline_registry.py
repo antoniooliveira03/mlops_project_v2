@@ -9,8 +9,8 @@ from hotel_california.pipelines import (
     data_unit_tests_afterprep_04 as data_unit_tests_afterprep,
     ingestion_05 as ingestion,
     feature_selection_06 as feature_selection,
-    model_selection_0x as model_selection,
-    model_train_0x as model_train,
+    model_selection_07 as model_selection,
+    model_train_08 as model_train,
 
 )
 
@@ -36,5 +36,4 @@ def register_pipelines() -> Dict[str, Pipeline]:
         # The ingestion pipeline is commented out by default to avoid long execution times.
         # Uncomment it only if you need to run it and upload data to your Hopsworks workspace.
         "__default__": data_split_pipeline + data_unit_tests_pipeline + data_preproc_pipeline + data_unit_tests_afterprep_pipeline #+ ingestion_pipeline,
-        + feature_selection_pipeline
     }

@@ -14,7 +14,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=model_train,
                 inputs=["X_train_final","X_val_final","y_train_final","y_val_final", "params:target",
-                        "params:use_feature_selection", "params:baseline_model_params", "selected_features"],
+                        "params:use_feature_selection", "params:model", "params:model_params", "selected_features"],
                 outputs=["production_model","production_columns" ,"production_model_metrics","output_plot", "shap_plot"],
                 name="train",
             ),

@@ -19,6 +19,12 @@ from mlflow.models.signature import infer_signature
 
 logger = logging.getLogger(__name__)
 
+model_registry = {
+    "RandomForestClassifier": RandomForestClassifier,
+    "GradientBoostingClassifier": GradientBoostingClassifier,
+    "LogisticRegression": LogisticRegression
+}
+
 def register_model(
     model_path: str,
     model_name: str,
@@ -64,9 +70,9 @@ def model_train(
     y_test: pd.DataFrame,
     target_name: str, 
     use_feature_selection: bool,
+    model_name: str,
     parameters: Dict[str, Any],
-    best_columns,
-    final_model=RandomForestClassifier
+    best_columns
 ):
 
     # Load MLflow configuration
@@ -81,16 +87,12 @@ def model_train(
         with open(os.path.join('data', '06_models', 'champion_model.pkl'), 'rb') as f:
             classifier = pickle.load(f)
     except:
-        classifier = final_model(**parameters)
+        model_class = model_registry[model_name]
+        classifier = model_class(**parameters)
 
     with mlflow.start_run(experiment_id=experiment_id, nested=True) as run:
         run_id = run.info.run_id
 
-        # Log datasets
-        mlflow.log_input(mlflow.data.from_pandas(X_train, name="X_train_final"), context="training_X_train")
-        mlflow.log_input(mlflow.data.from_pandas(X_test, name="X_val_final"), context="training_X_val")
-        mlflow.log_input(mlflow.data.from_pandas(y_train, name="y_train_final"), context="training_y_train")
-        mlflow.log_input(mlflow.data.from_pandas(y_test, name="y_val_final"), context="training_y_val")
 
         mlflow.set_tag("model_name", classifier.__class__.__name__)
         mlflow.set_tag("experiment_name", experiment_name)
@@ -161,12 +163,13 @@ def model_train(
         explainer = shap.Explainer(model, X_train)
         shap_values = explainer(X_train)
         shap.initjs()
-        plt.figure(figsize=(12, 8))
-        shap.summary_plot(shap_values, X_train, show=False)
+        shap_fig = plt.figure()
+        shap.summary_plot(shap_values[:,:,1], X_train, show=False)
         plt.tight_layout()
-        shap_fig = plt.gcf()
-        mlflow.log_figure(shap_fig, "shap_summary_plot.png")
-        plt.close()
+        shap_fig_path = "shap_summary_plot.png"
+        plt.savefig(shap_fig_path)
+        mlflow.log_artifact(shap_fig_path)
+        plt.close(shap_fig)
 
         # Log model explicitly with signature
         signature = infer_signature(X_train, y_train)
