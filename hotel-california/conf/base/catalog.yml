@@ -145,3 +145,11 @@ shap_plot:
   dataset:
     type: matplotlib.MatplotlibWriter
     filepath: data/08_reporting/shap_plot.png
+
+df_with_predict:
+  type: pandas.CSVDataSet
+  filepath: data/08_predict/df_with_predict.csv
+
+predict_describe:
+  type: pandas.JSONDataSet
+  filepath: data/08_reporting/describe_servings.json
