@@ -2,11 +2,12 @@ mlruns_path: "mlruns"
 to_feature_store: True
 train_prefix: "train"
 val_prefix: "val"
+use_feature_selection: True
 baseline_model_params:
   n_estimators: 100
   max_depth: 6
   max_features: 20
-  random_state: 2021
+  random_state: 42
 
 feature_selection:
   methods:
