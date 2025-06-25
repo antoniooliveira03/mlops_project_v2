@@ -185,7 +185,7 @@ def model_selection(X_train: pd.DataFrame,
                 best_score = metrics['f1_score_test']
                 best_model = model
                 best_model_name = model_name
-                best_params = trial.params
+                best_params = model.get_params()
                 best_run_id = run.info.run_id
 
             logger.info(f"Best model training complete. Run ID: {run_id}")
@@ -204,7 +204,7 @@ def model_selection(X_train: pd.DataFrame,
             new_model_name=best_model_name,
             new_params=best_params
         )
-        return best_model
+        return best_model, best_columns, metrics
     else:
         logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f} (candidate {best_score:.4f})")
-        return champion_model
+        return champion_model, 
