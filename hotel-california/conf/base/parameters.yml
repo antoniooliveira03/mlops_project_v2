@@ -1,4 +1,5 @@
 mlruns_path: "mlruns"
+target: 'canceled'
 to_feature_store: True
 train_prefix: "train"
 val_prefix: "val"

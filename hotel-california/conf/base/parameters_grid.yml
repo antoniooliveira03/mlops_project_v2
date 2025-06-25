@@ -1,11 +1,17 @@
-hyperparameters : 
+hyperparameters:
   RandomForestClassifier:
     n_estimators: [100, 200]
-    max_depth: [ 20]
-    max_features: [0.7]
+    max_depth: [10, 20]
+    max_features: [0.5, 0.7]
     random_state: [42]
   GradientBoostingClassifier:
     n_estimators: [100, 200]
-    max_depth: [ 20]
-    max_features: [0.7]
+    learning_rate: [0.05, 0.1]
+    max_depth: [3, 5]
+    random_state: [42]
+  LogisticRegression:
+    penalty: ['l2']
+    C: [0.1, 1]
+    solver: ['liblinear']
+    max_iter: [100]
     random_state: [42]
