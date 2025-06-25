@@ -7,134 +7,140 @@
 hotel_california:
   type: pandas.CSVDataset
   filepath: data/01_raw/hotel_california.csv
-
+  mlflow:
+    logged: true
 
 # Split
 X_train_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/X_train.csv
+  mlflow:
+    logged: true
 
 X_val_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/X_val.csv
+  mlflow:
+    logged: true
 
 X_test_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/X_test.csv
+  mlflow:
+    logged: true
 
 y_train_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/y_train.csv
+  mlflow:
+    logged: true
 
 y_val_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/y_val.csv
+  mlflow:
+    logged: true
 
 y_test_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/y_test.csv
-
-
-# Unit test results
-unit_test_result_train:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_train.txt
-
-unit_test_result_val:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_val.txt
-
-unit_test_result_test:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_test.txt
+  mlflow:
+    logged: true
 
 # Validated
 X_train_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_train_validated.csv
+  mlflow:
+    logged: true
 
 X_val_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_val_validated.csv
+  mlflow:
+    logged: true
 
 X_test_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/X_test_validated.csv
+  mlflow:
+    logged: true
 
 y_train_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/y_train_validated.csv
+  mlflow:
+    logged: true
 
 y_val_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/y_val_validated.csv
+  mlflow:
+    logged: true
 
 y_test_validated:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/y_test_validated.csv
-  
+  mlflow:
+    logged: true
+
 # Preprocessed
 X_train_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/X_train_final.csv
+  mlflow:
+    logged: true
 
 X_val_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/X_val_final.csv
+  mlflow:
+    logged: true
 
 X_test_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/X_test_final.csv
+  mlflow:
+    logged: true
 
-# Merged targets with datetime
 y_train_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/y_train_final.csv
+  mlflow:
+    logged: true
 
 y_val_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/y_val_final.csv
+  mlflow:
+    logged: true
 
 y_test_final:
   type: pandas.CSVDataset
   filepath: data/03_primary/y_test_final.csv
-
-# Unit test results after preprocessing
-unit_test_result_train_final:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_train_final.txt
-
-unit_test_result_val_final:
-  type: text.TextDataset
-  filepath: data/08_reporting/unit_test_result_val_final.txt
-
-# Validation results_final
-X_train_validated_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/X_train_validated_final.csv
-
-X_val_validated_final:
-  type: pandas.CSVDataset
-  filepath: data/03_primary/X_val_validated_final.csv
+  mlflow:
+    logged: true
 
 # Ingested data
 train_ingested:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/train_ingested.csv
+  mlflow:
+    logged: true
 
 validation_ingested:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/validation_ingested.csv
+  mlflow:
+    logged: true
 
-
-# Feature selection
+# Model artifacts (already tracked by kedro_mlflow.io.artifacts.MlflowArtifactDataset)
 selected_features:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
     type: pickle.PickleDataset
     filepath: data/04_feature/selected_features.pkl
 
-# Champion
 champion_columns:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
@@ -153,7 +159,6 @@ champion_model_metrics:
     type: json.JSONDataset
     filepath: data/08_reporting/champion_model_metrics.json
 
-# Production
 production_columns:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
