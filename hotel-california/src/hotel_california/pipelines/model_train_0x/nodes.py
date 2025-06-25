@@ -161,12 +161,13 @@ def model_train(
         explainer = shap.Explainer(model, X_train)
         shap_values = explainer(X_train)
         shap.initjs()
-        plt.figure(figsize=(12, 8))
-        shap.summary_plot(shap_values, X_train, show=False)
+        shap_fig = plt.figure()
+        shap.summary_plot(shap_values[:,:,1], X_train, show=False)
         plt.tight_layout()
-        shap_fig = plt.gcf()
-        mlflow.log_figure(shap_fig, "shap_summary_plot.png")
-        plt.close()
+        shap_fig_path = "shap_summary_plot.png"
+        plt.savefig(shap_fig_path)
+        mlflow.log_artifact(shap_fig_path)
+        plt.close(shap_fig)
 
         # Log model explicitly with signature
         signature = infer_signature(X_train, y_train)
