@@ -93,11 +93,6 @@ def model_train(
     with mlflow.start_run(experiment_id=experiment_id, nested=True) as run:
         run_id = run.info.run_id
 
-        # Log datasets
-        mlflow.log_input(mlflow.data.from_pandas(X_train, name="X_train_final"), context="training_X_train")
-        mlflow.log_input(mlflow.data.from_pandas(X_test, name="X_val_final"), context="training_X_val")
-        mlflow.log_input(mlflow.data.from_pandas(y_train, name="y_train_final"), context="training_y_train")
-        mlflow.log_input(mlflow.data.from_pandas(y_test, name="y_val_final"), context="training_y_val")
 
         mlflow.set_tag("model_name", classifier.__class__.__name__)
         mlflow.set_tag("experiment_name", experiment_name)
