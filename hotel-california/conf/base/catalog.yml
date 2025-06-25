@@ -5,91 +5,91 @@
 
 # Base
 hotel_california:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/hotel_california.csv
 
 # Split
 X_train_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/X_train.csv
 
 X_val_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/X_val.csv
 
 X_test_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/X_test.csv
 
 y_train_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/y_train.csv
 
 y_val_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/y_val.csv
 
 y_test_data:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/01_raw/y_test.csv
 
 # Validated
 X_train_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/X_train_validated.csv
 
 X_val_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/X_val_validated.csv
 
 X_test_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/X_test_validated.csv
 
 y_train_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/y_train_validated.csv
 
 y_val_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/y_val_validated.csv
 
 y_test_validated:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/y_test_validated.csv
 
 # Preprocessed
 X_train_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/X_train_final.csv
 
 X_val_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/X_val_final.csv
 
 X_test_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/X_test_final.csv
 
 y_train_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/y_train_final.csv
 
 y_val_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/y_val_final.csv
 
 y_test_final:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/03_primary/y_test_final.csv
 
 # Ingested data
 train_ingested:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/train_ingested.csv
 
 validation_ingested:
-  type: pandas.CSVDataset
+  type: pandas.CSVDataSet
   filepath: data/02_intermediate/validation_ingested.csv
 
 selected_features:
@@ -113,7 +113,7 @@ champion_model:
 champion_model_metrics:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
-    type: json.JSONDataset
+    type: json.JSONDataSet
     filepath: data/08_reporting/champion_model_metrics.json
 
 production_columns:
@@ -131,7 +131,7 @@ production_model:
 production_model_metrics:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
-    type: json.JSONDataset
+    type: json.JSONDataSet
     filepath: data/08_reporting/production_model_metrics.json
 
 output_plot:
