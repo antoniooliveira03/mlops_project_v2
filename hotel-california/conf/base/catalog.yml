@@ -98,23 +98,23 @@ selected_features:
     type: pickle.PickleDataset
     filepath: data/04_feature/selected_features.pkl
 
-champion_columns_optuna:
+champion_columns:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
     type: pickle.PickleDataset
-    filepath: data/06_models/champion_cols_optuna.pkl
+    filepath: data/06_models/champion_cols.pkl
 
-champion_model_optuna:
+champion_model:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
     type: pickle.PickleDataset
-    filepath: data/06_models/champion_model_optuna.pkl
+    filepath: data/06_models/champion_model.pkl
 
-champion_model_metrics_optuna:
+champion_model_metrics:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
   dataset:
     type: json.JSONDataset
-    filepath: data/08_reporting/champion_model_metrics_optuna.json
+    filepath: data/08_reporting/champion_model_metrics.json
 
 production_columns:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataset
@@ -151,5 +151,5 @@ df_with_predict:
   filepath: data/07_predict/df_with_predict.csv
 
 describe_servings:
-  type: json.JSONDataset
+  type: json.JSONDataSet
   filepath: data/08_reporting/describe_servings.json
