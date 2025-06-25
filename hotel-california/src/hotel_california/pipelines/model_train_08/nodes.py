@@ -164,7 +164,8 @@ def model_train(
         shap_values = explainer(X_train)
         shap.initjs()
         shap_fig = plt.figure()
-        shap.summary_plot(shap_values[:,:,1], X_train, show=False)
+        # For binary classification, shap_values is 2D (samples x features)
+        shap.summary_plot(shap_values, X_train, show=False)
         plt.tight_layout()
         shap_fig_path = "shap_summary_plot.png"
         plt.savefig(shap_fig_path)
@@ -192,21 +193,3 @@ def model_train(
         logger.info("Model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
 
     return model, X_train.columns, metrics, fig, shap_fig
-
-def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict, use_feature_selection: bool = True) -> None:
-    path = Path(yaml_path)
-    if not path.exists():
-        raise FileNotFoundError(f"{yaml_path} not found")
-
-    with open(path, "r") as f:
-        config = yaml.safe_load(f)
-
-    # Update with new model info
-    config['model'] = new_model_name
-    config['model_params'] = new_params
-    config['use_feature_selection'] = use_feature_selection
-
-    with open(path, "w") as f:
-        yaml.safe_dump(config, f)
-
-    logger.info(f"Updated {yaml_path} with new model '{new_model_name}', params, and use_feature_selection={use_feature_selection}.")
