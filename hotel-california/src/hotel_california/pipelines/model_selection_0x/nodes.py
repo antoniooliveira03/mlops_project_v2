@@ -16,8 +16,16 @@ import shap
 import matplotlib.pyplot as plt
 from mlflow.models.signature import infer_signature
 import optuna
+import yaml
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+models_dict = {
+        'RandomForestClassifier': RandomForestClassifier(),
+        # 'GradientBoostingClassifier': GradientBoostingClassifier(),
+        # 'LogisticRegression': LogisticRegression()
+    }
 
 def _get_or_create_experiment_id(experiment_name: str) -> str:
     exp = mlflow.get_experiment_by_name(experiment_name)
@@ -58,12 +66,9 @@ def get_search_space(trial, model_name, param_grid):
 def objective(trial, X_train, X_val, y_train, y_val, model_name, base_model, param_grid, best_columns=None):
     params = get_search_space(trial, model_name, param_grid)
     model = base_model.__class__(**params)
-    
-    if best_columns is not None:
-        X_train_ = X_train[best_columns]
-        X_val_ = X_val[best_columns]
-    else:
-        X_train_, X_val_ = X_train, X_val
+
+    X_train_ = X_train[best_columns]
+    X_val_ = X_val[best_columns]
 
     model.fit(X_train_, y_train)
     y_val_pred = model.predict(X_val_)
@@ -75,6 +80,25 @@ def objective(trial, X_train, X_val, y_train, y_val, model_name, base_model, par
 
     return f1
 
+def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict) -> None:
+
+    path = Path(yaml_path)
+    if not path.exists():
+        raise FileNotFoundError(f"{yaml_path} not found")
+
+    with open(path, "r") as f:
+        config = yaml.safe_load(f)
+
+    # Update with new model info
+    config['model'] = new_model_name
+    config['baseline_model_params'] = new_params
+
+    with open(path, "w") as f:
+        yaml.safe_dump(config, f)
+
+    logger.info(f"Updated {yaml_path} with new model '{new_model_name}' and params.")
+
+
 def model_selection(X_train: pd.DataFrame, 
                     X_test: pd.DataFrame, 
                     y_train: pd.DataFrame, 
@@ -85,91 +109,102 @@ def model_selection(X_train: pd.DataFrame,
                     parameters_grid: Dict[str, Any],
                     best_columns,
                     n_trials: int = 20) -> Any:
-    
-    models_dict = {
-        'RandomForestClassifier': RandomForestClassifier(),
-        'GradientBoostingClassifier': GradientBoostingClassifier(),
-    }
 
-    initial_results = {}   
+    y_train = np.ravel(y_train[target_name])
+    y_test = np.ravel(y_test[target_name])
 
+    initial_results = {}
 
     with open('conf/local/mlflow.yml') as f:
         experiment_name = yaml.load(f, Loader=yaml.SafeLoader)['tracking']['experiment']['name']
     experiment_id = _get_or_create_experiment_id(experiment_name)
     logger.info(f"Experiment ID: {experiment_id}")
 
-    logger.info('Starting first step of model selection: Comparing base models')
+    logger.info('Starting hyperparameter tuning for all models with Optuna')
 
-    for model_name, model in models_dict.items():
-        with mlflow.start_run(experiment_id=experiment_id, nested=True):
-            mlflow.sklearn.autolog(log_model_signatures=True, log_input_examples=True)
-            y_train = np.ravel(y_train[target_name])
-            y_test = np.ravel(y_test[target_name])
-            model.fit(X_train, y_train)
-            test_score = model.score(X_test, y_test)
-            initial_results[model_name] = test_score
+    best_score = 0
+    best_model = None
+    best_model_name = None
+    best_params = None
+    best_run_id = None
+
+    for model_name, base_model in models_dict.items():
+        param_grid = parameters_grid[model_name]
+
+        def objective_wrapper(trial):
+            return objective(
+                trial,
+                X_train,
+                X_test,
+                y_train,
+                y_test,
+                model_name,
+                base_model,
+                param_grid,
+                best_columns=best_columns
+            )
+
+        study = optuna.create_study(direction='maximize')
+        with mlflow.start_run(experiment_id=experiment_id, nested=True) as run:
+            mlflow.set_tag("model_name", model_name)
+            mlflow.set_tag("task", "Classification")
+            mlflow.set_tag("stage", "hyperparameter_tuning_optuna")
             run_id = mlflow.active_run().info.run_id
-            logger.info(f"Logged model: {model_name} with test score {test_score:.4f} in run {run_id}")
+            study.optimize(objective_wrapper, n_trials=n_trials)
 
-    best_model_name = max(initial_results, key=initial_results.get)
-    logger.info(f"Best base model: {best_model_name} with score {initial_results[best_model_name]:.4f}")
-    base_model = models_dict[best_model_name]
+            trial = study.best_trial
+            model = base_model.__class__(**trial.params)
+            model.fit(X_train[best_columns], y_train)
 
-    logger.info('Starting hyperparameter tuning on best model with Optuna')
+            y_train_pred = model.predict(X_train[best_columns])
+            y_test_pred = model.predict(X_test[best_columns])
 
-    # Perform hyperparameter tuning using Optuna
-    param_grid = parameters_grid['hyperparameters'].get(best_model_name, {})
-    def objective_wrapper(trial):
-        return objective(
-            trial,
-            X_train,
-            X_test,
-            y_train,
-            y_test,
-            best_model_name,
-            base_model,
-            parameters_grid,
-            best_columns=best_columns
+            metrics = {
+                'accuracy_train': accuracy_score(y_train, y_train_pred),
+                'accuracy_test': accuracy_score(y_test, y_test_pred),
+                'f1_score_train': f1_score(y_train, y_train_pred),
+                'f1_score_test': f1_score(y_test, y_test_pred),
+                'recall_test': recall_score(y_test, y_test_pred),
+                'precision_test': precision_score(y_test, y_test_pred)
+            }
+
+            for metric_name, value in metrics.items():
+                mlflow.log_metric(metric_name, value)
+
+            # Log the model artifact, signature and input example
+            signature = infer_signature(X_train[best_columns], model.predict(X_train[best_columns]))
+            input_example = X_train[best_columns].iloc[:5]
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=signature,
+                input_example=input_example
+            )
+
+            if metrics['f1_score_test'] > best_score:
+                best_score = metrics['f1_score_test']
+                best_model = model
+                best_model_name = model_name
+                best_params = trial.params
+                best_run_id = run.info.run_id
+
+            logger.info(f"Best model training complete. Run ID: {run_id}")
+            logger.info("Best model accuracy on training set: %0.2f%%", metrics['accuracy_train'] * 100)
+            logger.info("Best model accuracy on validation set: %0.2f%%", metrics['accuracy_test'] * 100)
+            logger.info("Best model f1score on training set: %0.2f%%", metrics['f1_score_train'] * 100)
+            logger.info("Best model f1score on validation set: %0.2f%%", metrics['f1_score_test'] * 100)
+            logger.info("Best model precision on validation set: %0.2f%%", metrics['precision_test'] * 100)
+            logger.info("Best model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
+
+    if champion_dict['f1_score_test'] < best_score:
+        logger.info(f"New champion model: {best_model_name} with test F1 {best_score:.4f} (previous {champion_dict['f1_score_test']:.4f})")
+        # Update parameters.yml with new champion model info
+        update_parameters_yaml(
+            yaml_path="conf/base/parameters.yml",
+            new_model_name=best_model_name,
+            new_params=best_params
         )
-    
-    # Set up Optuna study with MLflow integration
-    study = optuna.create_study(direction='maximize')
-    mlflow.set_experiment(experiment_name)
-    with mlflow.start_run(experiment_id=experiment_id, nested=True):
-        y_train = np.ravel(y_train[target_name])
-        y_test = np.ravel(y_test[target_name])
-        study.optimize(objective_wrapper, n_trials=n_trials)
-
-        best_trial = study.best_trial
-        best_params = best_trial.params
-        best_score = best_trial.value
-
-        logger.info(f"Optuna tuning complete. Best F1 score: {best_score:.4f} with params: {best_params}")
-
-        # Refit best model on full training data
-        best_model = base_model.__class__(**best_params)
-        if best_columns is not None:
-            X_train_ = X_train[best_columns]
-        else:
-            X_train_ = X_train
-        best_model.fit(X_train_, y_train)
-
-        pred_score = accuracy_score(y_test, best_model.predict(X_test))
-        logger.info(f"Tuned model test accuracy: {pred_score:.4f}")
-
-        mlflow.log_params(best_params)
-        mlflow.log_metric("optuna_best_f1_score", best_score)
-        mlflow.log_metric("test_accuracy", pred_score)
-
-    if champion_dict['test_score'] < pred_score:
-        logger.info(f"New champion model: {best_model_name} with test accuracy {pred_score:.4f} (previous {champion_dict['test_score']:.4f})")
-        return {
-            'model': best_model,
-            'test_score': pred_score,
-            'model_name': best_model_name,
-            'parameters': best_params
-        }
+        return best_model
     else:
-        logger.info(f"Champion model remains: {champion_dict['model_name']} with test accuracy {champion_dict['test_score']:.4f} (candidate {pred_score:.4f})")
-        return champion_dict
+        logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f} (candidate {best_score:.4f})")
+        return champion_model
