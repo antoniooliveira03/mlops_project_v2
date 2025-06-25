@@ -147,9 +147,9 @@ shap_plot:
     filepath: data/08_reporting/shap_plot.png
 
 df_with_predict:
-  type: pandas.CSVDataSet
-  filepath: data/08_predict/df_with_predict.csv
+  type: pandas.CSVDataset
+  filepath: data/07_predict/df_with_predict.csv
 
-predict_describe:
-  type: pandas.JSONDataSet
+describe_servings:
+  type: json.JSONDataset
   filepath: data/08_reporting/describe_servings.json

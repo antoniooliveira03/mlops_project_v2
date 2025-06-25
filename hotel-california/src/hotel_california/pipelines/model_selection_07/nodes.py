@@ -70,8 +70,14 @@ def objective(trial, X_train, X_val, y_train, y_val, model_name, base_model, par
     params = get_search_space(trial, model_name, param_grid)
     model = base_model.__class__(**params)
 
-    X_train_ = X_train[best_columns]
-    X_val_ = X_val[best_columns]
+    if best_columns is not None:
+        # If best_columns is provided, filter the training and validation sets
+        X_train_ = X_train[best_columns]
+        X_val_ = X_val[best_columns]
+    else:
+        # If no best_columns, use the full dataset
+        X_train_ = X_train
+        X_val_ = X_val
 
     model.fit(X_train_, y_train)
     y_val_pred = model.predict(X_val_)
@@ -108,7 +114,7 @@ def champion_callback(study, frozen_trial):
         else:
             logger.info(f"Initial trial {frozen_trial.number} achieved value: {frozen_trial.value}")
 
-def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict) -> None:
+def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict, use_feature_selection: bool = True) -> None:
 
     path = Path(yaml_path)
     if not path.exists():
@@ -120,11 +126,12 @@ def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict
     # Update with new model info
     config['model'] = new_model_name
     config['model_params'] = new_params
+    config['use_feature_selection'] = use_feature_selection
 
     with open(path, "w") as f:
         yaml.safe_dump(config, f)
 
-    logger.info(f"Updated {yaml_path} with new model '{new_model_name}' and params.")
+    logger.info(f"Updated {yaml_path} with new model '{new_model_name}', params, and use_feature_selection={use_feature_selection}.")
 
 
 def model_selection(X_train: pd.DataFrame, 
@@ -136,6 +143,7 @@ def model_selection(X_train: pd.DataFrame,
                     champion_model: Any,
                     parameters_grid: Dict[str, Any],
                     best_columns,
+                    use_feature_selection,
                     n_trials: int = 20) -> Any:
 
     y_train = np.ravel(y_train[target_name])
@@ -186,11 +194,18 @@ def model_selection(X_train: pd.DataFrame,
             # Use champion_callback here to log improvements during tuning
             study.optimize(objective_wrapper, n_trials=n_trials, callbacks=[champion_callback])
 
-            model = base_model.__class__(**study.best_params)
-            model.fit(X_train[best_columns], y_train)
+            if use_feature_selection:
+                X_train_fit = X_train[best_columns]
+                X_test_fit = X_test[best_columns]
+            else:
+                X_train_fit = X_train
+                X_test_fit = X_test
 
-            y_train_pred = model.predict(X_train[best_columns])
-            y_test_pred = model.predict(X_test[best_columns])
+            model = base_model.__class__(**study.best_params)
+            model.fit(X_train_fit, y_train)
+
+            y_train_pred = model.predict(X_train_fit)
+            y_test_pred = model.predict(X_test_fit)
 
             metrics = {
                 'accuracy_train': accuracy_score(y_train, y_train_pred),
@@ -205,8 +220,8 @@ def model_selection(X_train: pd.DataFrame,
                 mlflow.log_metric(metric_name, value)
 
             # Log the model artifact, signature and input example
-            signature = infer_signature(X_train[best_columns], model.predict(X_train[best_columns]))
-            input_example = X_train[best_columns].iloc[:5]
+            signature = infer_signature(X_train_fit, model.predict(X_train_fit))
+            input_example = X_train_fit.iloc[:5]
             mlflow.sklearn.log_model(
                 sk_model=model,
                 artifact_path="model",
