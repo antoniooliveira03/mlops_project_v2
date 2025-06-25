@@ -119,7 +119,7 @@ def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict
 
     # Update with new model info
     config['model'] = new_model_name
-    config['baseline_model_params'] = new_params
+    config['model_params'] = new_params
 
     with open(path, "w") as f:
         yaml.safe_dump(config, f)
@@ -237,6 +237,6 @@ def model_selection(X_train: pd.DataFrame,
             new_model_name=best_model_name,
             new_params=best_params
         )
-        return best_model
+        return best_model, best_columns, metrics
     else:
         logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f}")

@@ -19,7 +19,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                         "production_model",
                         "params:hyperparameters",
                         "selected_features"],
-                outputs="champion_model",
+                outputs=["champion_model", "champion_columns" ,"champion_model_metrics"],
                 name="model_selection",
             ),
         ]
