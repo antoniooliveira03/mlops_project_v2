@@ -13,10 +13,12 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=model_selection,
-                inputs=["X_train_data","X_val_data","y_train_data","y_val_data",
+                inputs=["X_train_final","X_val_final","y_train_final","y_val_final",
+                        "params:target",
                         "production_model_metrics",
                         "production_model",
-                        "parameters"],
+                        "params:hyperparameters",
+                        "selected_features"],
                 outputs="champion_model",
                 name="model_selection",
             ),
