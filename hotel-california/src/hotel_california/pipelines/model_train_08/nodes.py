@@ -160,7 +160,7 @@ def model_train(
 
         # SHAP explanations
         logger.info("Generating SHAP explanations...")
-        explainer = shap.Explainer(model, X_train)
+        explainer = shap.TreeExplainer(model)
         shap_values = explainer(X_train)
         shap.initjs()
         shap_fig = plt.figure()
