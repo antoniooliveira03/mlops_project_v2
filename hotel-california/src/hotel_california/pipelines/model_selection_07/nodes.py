@@ -204,7 +204,6 @@ def model_selection(X_train: pd.DataFrame,
             new_model_name=best_model_name,
             new_params=best_params
         )
-        return best_model, best_columns, metrics
+        return best_model
     else:
         logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f} (candidate {best_score:.4f})")
-        return champion_model, 
