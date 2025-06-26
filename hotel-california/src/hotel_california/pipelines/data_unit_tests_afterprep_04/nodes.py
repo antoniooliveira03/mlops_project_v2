@@ -26,7 +26,7 @@ def unit_test_final(df: pd.DataFrame, mlruns_path: str) -> pd.DataFrame:
         def log_expectation(expectation_name: str, result: dict):
             gx_results_summary[expectation_name] = result["success"]
             path = f"expectation_results_prepdata/{expectation_name}.json"
-            mlflow.log_dict(result, path)
+            mlflow.log_dict(result.to_json_dict(), path)
 
         # Basic expectations
         result = pd_df_gx.expect_column_values_to_be_of_type('bookingid', 'int64')
