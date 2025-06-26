@@ -20,7 +20,11 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "numerical_features",
                 "params:feature_selection"
             ],
-            outputs="selected_features",
+            outputs=[
+                    "final_selected_features",
+                    "feature_votes",
+                    "feature_votes_plot"
+                ],
             name="feature_selection_node"
         )
     ])
