@@ -6,27 +6,17 @@ feature_selection:
   - feature_importance
   n_features: 14
 mlruns_path: mlruns
-model: RandomForestClassifier
+model: XGBClassifier
 model_params:
-  bootstrap: true
-  ccp_alpha: 0.0
-  class_weight: null
-  criterion: gini
-  max_depth: null
-  max_features: sqrt
-  max_leaf_nodes: null
-  max_samples: null
-  min_impurity_decrease: 0.0
-  min_samples_leaf: 1
-  min_samples_split: 2
-  min_weight_fraction_leaf: 0.0
-  monotonic_cst: null
-  n_estimators: 100
-  n_jobs: null
-  oob_score: false
-  random_state: null
-  verbose: 0
-  warm_start: false
+  colsample_bytree: 0.8
+  eval_metric: logloss
+  gamma: 0.1
+  learning_rate: 0.001
+  max_depth: 6
+  n_estimators: 1000
+  reg_alpha: 0.1
+  reg_lambda: 0.1
+  subsample: 0.8
 target: canceled
 to_feature_store: true
 train_prefix: train
