@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/170527400221862755/0b437389752f488eb13a245b0b107530/artifacts
+end_time: 1750947648508
+entry_point_name: ''
+experiment_id: '170527400221862755'
+lifecycle_stage: active
+run_id: 0b437389752f488eb13a245b0b107530
+run_name: whimsical-swan-153
+run_uuid: 0b437389752f488eb13a245b0b107530
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750947648047
+status: 3
+tags: []
+user_id: Salvador

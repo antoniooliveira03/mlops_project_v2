@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/170527400221862755/136eec6e8813410db7aecd04326d8b3c/artifacts
+end_time: 1750947649498
+entry_point_name: ''
+experiment_id: '170527400221862755'
+lifecycle_stage: active
+run_id: 136eec6e8813410db7aecd04326d8b3c
+run_name: beautiful-quail-711
+run_uuid: 136eec6e8813410db7aecd04326d8b3c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750947649053
+status: 3
+tags: []
+user_id: Salvador
