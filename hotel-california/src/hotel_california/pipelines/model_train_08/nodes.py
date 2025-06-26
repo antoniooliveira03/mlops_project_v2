@@ -12,6 +12,9 @@ from mlflow.tracking import MlflowClient
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 import shap
 import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score, recall_score, precision_score, confusion_matrix, ConfusionMatrixDisplay
@@ -22,7 +25,11 @@ logger = logging.getLogger(__name__)
 model_registry = {
     "RandomForestClassifier": RandomForestClassifier,
     "GradientBoostingClassifier": GradientBoostingClassifier,
-    "LogisticRegression": LogisticRegression
+    "LogisticRegression": LogisticRegression,
+    "AdaBoostClassifier": AdaBoostClassifier,
+    "ExtraTreesClassifier": ExtraTreesClassifier,
+    "XGBClassifier": XGBClassifier,
+    "LGBMClassifier": LGBMClassifier,
 }
 
 def register_model(
@@ -159,14 +166,14 @@ def model_train(
         mlflow.log_figure(fig, "confusion_matrix_feature_importance.png")
 
         # SHAP explanations
-        logger.info("Generating SHAP explanations...")
-        explainer = shap.TreeExplainer(model)
-        shap_values = explainer(X_train)
-        shap.initjs()
+        #logger.info("Generating SHAP explanations...")
+        #explainer = shap.TreeExplainer(model)
+        #shap_values = explainer(X_train)
+        #shap.initjs()
         # Create the plot without showing it
-        shap.summary_plot(shap_values[:,:,1], X_train, feature_names=X_train.columns, show=False)
+        #shap.summary_plot(shap_values[:,:,1], X_train, feature_names=X_train.columns, show=False)
         # Grab the current figure from matplotlib
-        shap_fig = plt.gcf()
+        #shap_fig = plt.gcf()
 
         # Log model explicitly with signature
         signature = infer_signature(X_train, y_train)
@@ -188,4 +195,4 @@ def model_train(
         logger.info("Model precision on validation set: %0.2f%%", metrics['precision_test'] * 100)
         logger.info("Model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
 
-    return model, X_train.columns, metrics, fig, shap_fig
+    return model, X_train.columns, metrics, fig, #shap_fig
