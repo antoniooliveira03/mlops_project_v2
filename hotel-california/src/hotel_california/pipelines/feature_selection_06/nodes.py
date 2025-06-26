@@ -105,17 +105,13 @@ def feature_selection_node(
     categorical_features: List[str],
     numerical_features: List[str],
     parameters: Dict[str, Any]
-) -> List[str]:
-    
+) -> Tuple[List[str], Dict[str, int], plt.Figure]:
+
     mlflow.set_tracking_uri(mlruns_path)
 
     exp_name = "feature_selection_experiment"
     experiment = mlflow.get_experiment_by_name(exp_name)
-    if experiment is None:
-        experiment_id = mlflow.create_experiment(exp_name)
-    else:
-        experiment_id = experiment.experiment_id
-
+    experiment_id = experiment.experiment_id if experiment else mlflow.create_experiment(exp_name)
     mlflow.set_experiment(exp_name)
 
     if mlflow.active_run() is not None:
@@ -140,16 +136,15 @@ def feature_selection_node(
             X_cat_encoded = X_cat_encoded.apply(pd.to_numeric, errors='coerce')
             numerical_features = [col for col in numerical_features if col in X_train.columns]
             X_encoded = pd.concat([X_cat_encoded, X_train[numerical_features]], axis=1)
-            X_encoded.drop(columns=[col for col in X_encoded.columns if col == 'arrivaltime'], errors='ignore', inplace=True)
         else:
             numerical_features = [col for col in numerical_features if col in X_train.columns]
             X_encoded = X_train[numerical_features]
-            X_encoded.drop(columns=[col for col in X_encoded.columns if col == 'arrivaltime'], errors='ignore', inplace=True)
+
+        X_encoded.drop(columns=[col for col in X_encoded.columns if col == 'arrivaltime'], errors='ignore', inplace=True)
 
         all_selected = []
         for method in methods:
             logger.info(f"Running feature selection with method: {method}")
-            # Ensure y_train is a Series with the target labels
             if isinstance(y_train, pd.DataFrame):
                 if "canceled" in y_train.columns:
                     y_train = y_train["canceled"]
@@ -159,43 +154,20 @@ def feature_selection_node(
             mlflow.log_param(f"{method}_selected", selected)
             all_selected.extend(selected)
 
-            # --- Visualization for this method ---
-            plt.figure(figsize=(10, 6))
-            selected_vals = [1] * len(selected)
-            plt.barh(selected[::-1], selected_vals[::-1])
-            plt.xlabel("Selected (binary)")
-            plt.title(f"Top {n_features} Features by {method}")
-            plt.tight_layout()
-
-            plot_filename = f"{method}_selected_features.png"
-            plt.savefig(plot_filename)
-            mlflow.log_artifact(plot_filename)
-            plt.close()
-
-
+        # Count feature selection votes
         counter = Counter(all_selected)
         best_features = [f for f, _ in counter.most_common(n_features)]
 
         logger.info(f"Final selected features: {best_features}")
         mlflow.log_param("final_selected_features", best_features)
 
-        with open("feature_votes.json", "w") as f:
-            json.dump(counter, f)
-        mlflow.log_artifact("feature_votes.json")
-
-        with open("final_selected_features.json", "w") as f:
-            json.dump(best_features, f)
-        mlflow.log_artifact("final_selected_features.json")
-
-        # Save vote count plot as PNG
-        plt.figure(figsize=(10, 6))
+        # Create final vote plot figure (returned to Kedro for saving)
+        fig, ax = plt.subplots(figsize=(10, 6))
         feat_names, vote_counts = zip(*counter.most_common())
-        plt.barh(feat_names[::-1], vote_counts[::-1])
-        plt.xlabel("Vote Count")
-        plt.title("Feature Selection Vote Count")
-        plt.tight_layout()
-        plt.savefig("feature_votes_plot.png")
-        mlflow.log_artifact("feature_votes_plot.png")
-        plt.close()
+        ax.barh(feat_names[::-1], vote_counts[::-1])
+        ax.set_xlabel("Vote Count")
+        ax.set_title("Feature Selection Vote Count")
+        fig.tight_layout()
+        mlflow.log_figure(fig, "feature_votes_plot.png")
 
-        return best_features
+        return best_features, dict(counter), fig
