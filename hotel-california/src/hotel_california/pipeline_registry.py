@@ -31,11 +31,17 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "unit_tests": data_unit_tests_pipeline,
         "preproc": data_preproc_pipeline,
         "unit_tests_afterprep": data_unit_tests_afterprep_pipeline,
+        "feature_selection": feature_selection_pipeline,
         "model_selection": model_selection_pipeline,
         "model_train": model_train_pipeline,
         "model_prediction": model_prediction_pipeline,
         #"ingestion": ingestion_pipeline,
         # The ingestion pipeline is commented out by default to avoid long execution times.
         # Uncomment it only if you need to run it and upload data to your Hopsworks workspace.
-        "__default__": data_split_pipeline + data_unit_tests_pipeline + data_preproc_pipeline + data_unit_tests_afterprep_pipeline #+ ingestion_pipeline,
+        "__default__":  data_split_pipeline + 
+                        data_unit_tests_pipeline + 
+                        data_preproc_pipeline + 
+                        data_unit_tests_afterprep_pipeline + 
+                        feature_selection_pipeline
+                        #+ ingestion_pipeline,
     }
