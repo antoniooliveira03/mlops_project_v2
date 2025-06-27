@@ -257,7 +257,7 @@ def model_selection(X_train: pd.DataFrame,
             # Register the new champion model in MLflow Model Registry
             register_model(
                 model_path=f"runs:/{best_run_id}/model",
-                model_name="final_model",
+                model_name="hotel_california",
                 model_tag="production",
                 model_alias="champion"
             )
