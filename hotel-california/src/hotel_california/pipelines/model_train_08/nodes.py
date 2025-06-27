@@ -164,16 +164,56 @@ def model_train(
 
         plt.tight_layout()
         mlflow.log_figure(fig, "confusion_matrix_feature_importance.png")
+        extra_plot = fig
 
-        # SHAP explanations
-        #logger.info("Generating SHAP explanations...")
-        #explainer = shap.TreeExplainer(model)
-        #shap_values = explainer(X_train)
-        #shap.initjs()
-        # Create the plot without showing it
-        #shap.summary_plot(shap_values[:,:,1], X_train, feature_names=X_train.columns, show=False)
-        # Grab the current figure from matplotlib
-        #shap_fig = plt.gcf()
+        # SHAP
+        logger.info("Starting SHAP explainer selection...")
+        # Auto-select appropriate SHAP explainer
+        try:
+            if hasattr(model, "predict_proba") and "tree" in str(type(model)).lower():
+                explainer = shap.TreeExplainer(model)
+                logger.info("TreeExplainer selected for SHAP.")
+            else:
+                explainer = shap.Explainer(model, X_train)
+                logger.info("Generic SHAP Explainer selected.")
+        except Exception as e:
+            logger.error(f"Failed to create SHAP explainer: {e}")
+            return None
+        logger.info("Computing SHAP values...")
+        shap_values = explainer(X_train)
+        logger.info("SHAP values computed.")
+
+        # Binary classification: pick class 1 SHAP values if applicable
+        if len(shap_values.shape) == 3:
+            shap_vals = shap_values[:, :, 1]
+        else:
+            shap_vals = shap_values.values if hasattr(shap_values, "values") else shap_values
+
+        # Compute mean absolute SHAP values for feature importance
+        feature_importance = np.abs(shap_vals).mean(axis=0)
+        importance_df = pd.DataFrame({
+            "feature": X_train.columns,
+            "importance": feature_importance
+        }).sort_values(by="importance", ascending=False)
+
+        # Plot summary + feature importance
+        logger.info("Plotting SHAP summary and feature importance...")
+        shap.initjs()
+        fig, axs = plt.subplots(1, 2, figsize=(16, 6))
+
+        # SHAP summary plot
+        shap.summary_plot(shap_vals, X_train, feature_names=X_train.columns, show=False, ax=axs[0])
+        axs[0].set_title("SHAP Summary Plot")
+
+        # Feature importance bar plot
+        importance_df.head(20).plot(kind="barh", x="feature", y="importance", ax=axs[1], legend=False)
+        axs[1].invert_yaxis()
+        axs[1].set_title("Mean Absolute SHAP Feature Importance")
+        axs[1].set_xlabel("Importance")
+
+        plt.tight_layout()
+        logger.info("SHAP plots created.")
+        shap_fig = fig
 
         # Log model explicitly with signature
         signature = infer_signature(X_train, y_train)
@@ -195,4 +235,4 @@ def model_train(
         logger.info("Model precision on validation set: %0.2f%%", metrics['precision_test'] * 100)
         logger.info("Model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
 
-    return model, X_train.columns, metrics, fig, #shap_fig
+    return model, X_train.columns, metrics, extra_plot, shap_fig
