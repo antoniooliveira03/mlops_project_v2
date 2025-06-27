@@ -222,7 +222,7 @@ def model_train(
         # Register model in MLflow registry
         register_model(
             model_path=f"runs:/{run_id}/model",
-            model_name="final_model",
+            model_name="hotel_california",
             model_tag="production",
             model_alias="champion"
         )
