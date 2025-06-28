@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/2ce44374f29e4b7b98ab247aff0e2384/artifacts
+end_time: 1751107822817
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 2ce44374f29e4b7b98ab247aff0e2384
+run_name: handsome-squid-787
+run_uuid: 2ce44374f29e4b7b98ab247aff0e2384
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751107812687
+status: 3
+tags: []
+user_id: antoniooliveira

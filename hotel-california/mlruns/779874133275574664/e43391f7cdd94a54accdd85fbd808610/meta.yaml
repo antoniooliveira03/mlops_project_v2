@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/e43391f7cdd94a54accdd85fbd808610/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: e43391f7cdd94a54accdd85fbd808610
+run_name: suave-mule-429
+run_uuid: e43391f7cdd94a54accdd85fbd808610
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751107100953
+status: 1
+tags: []
+user_id: antoniooliveira

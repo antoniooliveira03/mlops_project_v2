@@ -1,0 +1,17 @@
+digest: 1a37e101
+name: dataset
+profile: '{"num_rows": 11150, "num_elements": 156100}'
+schema: '{"mlflow_colspec": [{"type": "long", "name": "totalstaydays", "required":
+  true}, {"type": "long", "name": "bookingtoarrivaldays", "required": true}, {"type":
+  "long", "name": "specialrequests", "required": true}, {"type": "long", "name": "confirmationtoarrivaldays",
+  "required": true}, {"type": "double", "name": "dailyrateeuros", "required": true},
+  {"type": "double", "name": "dailyrateusd", "required": true}, {"type": "double",
+  "name": "country_income_euros_y2", "required": true}, {"type": "double", "name":
+  "country_income_euros_y1", "required": true}, {"type": "double", "name": "country_hdi_y1",
+  "required": true}, {"type": "long", "name": "arrivalmonth", "required": true}, {"type":
+  "long", "name": "arrivalweeknumber", "required": true}, {"type": "long", "name":
+  "arrivaldayofmonth", "required": true}, {"type": "double", "name": "arrivalhour",
+  "required": true}, {"type": "long", "name": "weekdaystays", "required": true}]}'
+source: '{"tags": {"mlflow.user": "antoniooliveira", "mlflow.source.name": "/Users/antoniooliveira/Documents/GitHub/mlops_project_v2/.venv/bin/kedro",
+  "mlflow.source.type": "LOCAL"}}'
+source_type: code

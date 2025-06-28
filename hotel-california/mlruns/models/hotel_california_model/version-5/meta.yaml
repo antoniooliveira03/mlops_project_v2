@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1751102948480
+current_stage: None
+description: ''
+last_updated_timestamp: 1751102948480
+name: hotel_california_model
+run_id: 7617b2611e7d484a8490deaa86e8cade
+run_link: ''
+source: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/7617b2611e7d484a8490deaa86e8cade/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/7617b2611e7d484a8490deaa86e8cade/artifacts/model
+user_id: null
+version: 5

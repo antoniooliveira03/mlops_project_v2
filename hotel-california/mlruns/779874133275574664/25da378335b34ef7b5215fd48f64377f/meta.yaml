@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/25da378335b34ef7b5215fd48f64377f/artifacts
+end_time: 1751107909208
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 25da378335b34ef7b5215fd48f64377f
+run_name: righteous-conch-950
+run_uuid: 25da378335b34ef7b5215fd48f64377f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751107899782
+status: 3
+tags: []
+user_id: antoniooliveira

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/be12cd14dc614a9da3e02256ea09d677/artifacts
+end_time: 1751101319040
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: be12cd14dc614a9da3e02256ea09d677
+run_name: masked-wolf-850
+run_uuid: be12cd14dc614a9da3e02256ea09d677
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751101103622
+status: 3
+tags: []
+user_id: antoniooliveira

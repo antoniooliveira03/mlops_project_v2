@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/d0bde1be3a914c74a00de3f1f92a0e34/artifacts
+end_time: 1751106118804
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: d0bde1be3a914c74a00de3f1f92a0e34
+run_name: delicate-duck-198
+run_uuid: d0bde1be3a914c74a00de3f1f92a0e34
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751106111254
+status: 3
+tags: []
+user_id: antoniooliveira

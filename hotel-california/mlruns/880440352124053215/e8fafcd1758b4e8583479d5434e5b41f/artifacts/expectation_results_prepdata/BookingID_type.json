@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "expectation_config": {
+    "expectation_type": "_expect_column_values_to_be_of_type__aggregate",
+    "kwargs": {
+      "column": "bookingid",
+      "type_": "int64",
+      "result_format": "BASIC"
+    },
+    "meta": {}
+  },
+  "result": {
+    "observed_value": "int64"
+  },
+  "meta": {},
+  "exception_info": {
+    "raised_exception": false,
+    "exception_traceback": null,
+    "exception_message": null
+  }
+}

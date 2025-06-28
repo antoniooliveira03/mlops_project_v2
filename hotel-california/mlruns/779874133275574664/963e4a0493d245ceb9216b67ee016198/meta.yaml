@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/963e4a0493d245ceb9216b67ee016198/artifacts
+end_time: 1751101883553
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 963e4a0493d245ceb9216b67ee016198
+run_name: abrasive-asp-737
+run_uuid: 963e4a0493d245ceb9216b67ee016198
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751101666517
+status: 3
+tags: []
+user_id: antoniooliveira

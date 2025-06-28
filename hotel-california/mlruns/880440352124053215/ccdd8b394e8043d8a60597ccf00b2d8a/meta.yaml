@@ -1,0 +1,15 @@
+artifact_uri: /Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/880440352124053215/ccdd8b394e8043d8a60597ccf00b2d8a/artifacts
+end_time: 1750943573811
+entry_point_name: ''
+experiment_id: '880440352124053215'
+lifecycle_stage: active
+run_id: ccdd8b394e8043d8a60597ccf00b2d8a
+run_name: verify_data_quality_preprocessed_data
+run_uuid: ccdd8b394e8043d8a60597ccf00b2d8a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750943573661
+status: 3
+tags: []
+user_id: antoniooliveira

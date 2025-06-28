@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/ef0af6a290aa4641b5a86066565a8adb/artifacts
+end_time: 1751103358981
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: ef0af6a290aa4641b5a86066565a8adb
+run_name: stately-mouse-273
+run_uuid: ef0af6a290aa4641b5a86066565a8adb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751103350842
+status: 3
+tags: []
+user_id: antoniooliveira

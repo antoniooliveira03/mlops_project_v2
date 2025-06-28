@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/113130750fa9443fb5af1686cb96eb3e/artifacts
+end_time: 1750945575939
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 113130750fa9443fb5af1686cb96eb3e
+run_name: marvelous-sheep-143
+run_uuid: 113130750fa9443fb5af1686cb96eb3e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750945556956
+status: 3
+tags: []
+user_id: antoniooliveira
