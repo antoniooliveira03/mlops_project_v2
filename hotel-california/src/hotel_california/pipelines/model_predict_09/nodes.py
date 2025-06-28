@@ -3,7 +3,7 @@ import logging
 from typing import Dict, Tuple, Any
 import numpy as np  
 import pickle
-
+from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 logger = logging.getLogger(__name__)
@@ -28,13 +28,16 @@ def model_predict(X: pd.DataFrame, y, model, columns) -> Tuple[pd.DataFrame, Dic
 
     # Create dataframe with predictions
     X_pred['y_pred'] = y_pred
+
     
     # Create dictionary with predictions
     describe_servings = X_pred.describe().to_dict()
 
+
     # If y is provided, calculate metrics (for classification)
     if y is not None:
-        from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
+        y.drop(['bookingid','arrivaltime'], axis=1, inplace=True)
+        logger.info(y.dtypes)
         metrics = {
             'accuracy': accuracy_score(y, y_pred),
             'f1_score': f1_score(y, y_pred),
