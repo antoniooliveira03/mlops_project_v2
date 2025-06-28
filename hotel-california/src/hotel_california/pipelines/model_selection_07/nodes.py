@@ -27,9 +27,11 @@ logger = logging.getLogger(__name__)
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 models_dict = {
-    'LGBMClassifier': LGBMClassifier(),
-    # 'GradientBoostingClassifier': GradientBoostingClassifier(),
-    # 'LogisticRegression': LogisticRegression()
+    "RandomForestClassifier": RandomForestClassifier(),
+    #"GradientBoostingClassifier": GradientBoostingClassifier(),
+    #"LogisticRegression": LogisticRegression(),
+    #"XGBClassifier": XGBClassifier(),
+    #"LGBMClassifier": LGBMClassifier()
 }
 
 def _get_or_create_experiment_id(experiment_name: str) -> str:
@@ -221,6 +223,7 @@ def model_selection(X_train: pd.DataFrame,
                 X_test_fit = X_test
 
             model = base_model.__class__(**study.best_params)
+            logger.info(f"Training {model_name} with best parameters: {study.best_params}")
             model.fit(X_train_fit, y_train)
 
             y_train_pred = model.predict(X_train_fit)

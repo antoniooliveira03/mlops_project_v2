@@ -134,6 +134,7 @@ def model_train(
             logger.info("No feature selection applied. Using all features.")
 
         logger.info("Training the model...")
+        logger.info(model_name)
         model = classifier.fit(X_train, y_train)
         logger.info("Model training complete.")
 
