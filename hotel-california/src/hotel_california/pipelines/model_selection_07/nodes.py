@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 models_dict = {
-    'XGBClassifier': XGBClassifier(),
+    'LGBMClassifier': LGBMClassifier(),
     # 'GradientBoostingClassifier': GradientBoostingClassifier(),
     # 'LogisticRegression': LogisticRegression()
 }
@@ -264,7 +264,9 @@ def model_selection(X_train: pd.DataFrame,
                 model_alias="champion"
             )
 
+            return best_model, best_columns, metrics
+
         else:
             logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
 
-        return best_model, best_columns, metrics
+            return champion_model, best_columns, {"status": "unchanged"}
