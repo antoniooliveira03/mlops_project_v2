@@ -257,11 +257,11 @@ def model_selection(X_train: pd.DataFrame,
             # Register the new champion model in MLflow Model Registry
             register_model(
                 model_path=f"runs:/{best_run_id}/model",
-                model_name="final_model",
+                model_name="hotel_california_model",
                 model_tag="production",
                 model_alias="champion"
             )
 
             return best_model, best_columns, metrics
     else:
-        logger.info(f"Champion model remains: {champion_dict['model_name']} with test F1 {champion_dict['f1_score_test']:.4f}")
+        logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
