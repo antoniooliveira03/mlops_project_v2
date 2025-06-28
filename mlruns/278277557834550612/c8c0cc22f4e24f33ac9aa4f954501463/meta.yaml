@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/278277557834550612/c8c0cc22f4e24f33ac9aa4f954501463/artifacts
+end_time: 1751118838751
+entry_point_name: ''
+experiment_id: '278277557834550612'
+lifecycle_stage: active
+run_id: c8c0cc22f4e24f33ac9aa4f954501463
+run_name: rumbling-pug-494
+run_uuid: c8c0cc22f4e24f33ac9aa4f954501463
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751118838285
+status: 3
+tags: []
+user_id: Salvador

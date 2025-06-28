@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/278277557834550612/e7a9d796c23245f89bb10a4c7eef3dd8/artifacts
+end_time: 1751118839267
+entry_point_name: ''
+experiment_id: '278277557834550612'
+lifecycle_stage: active
+run_id: e7a9d796c23245f89bb10a4c7eef3dd8
+run_name: luxuriant-bass-451
+run_uuid: e7a9d796c23245f89bb10a4c7eef3dd8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751118838805
+status: 3
+tags: []
+user_id: Salvador

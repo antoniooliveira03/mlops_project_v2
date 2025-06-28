@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/278277557834550612/4bbc86a704a6462d9e5c302ed465817a/artifacts
+end_time: 1751118838236
+entry_point_name: ''
+experiment_id: '278277557834550612'
+lifecycle_stage: active
+run_id: 4bbc86a704a6462d9e5c302ed465817a
+run_name: nosy-cow-421
+run_uuid: 4bbc86a704a6462d9e5c302ed465817a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751118837801
+status: 3
+tags: []
+user_id: Salvador
