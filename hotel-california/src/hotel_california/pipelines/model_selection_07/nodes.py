@@ -135,6 +135,23 @@ def update_parameters_yaml(yaml_path: str, new_model_name: str, new_params: dict
 
     logger.info(f"Updated {yaml_path} with new model '{new_model_name}', params, and use_feature_selection={use_feature_selection}.")
 
+def register_model(
+    model_path: str,
+    model_name: str,
+    register_as_champion: bool = False
+) -> None:
+    client = MlflowClient()
+    version = mlflow.register_model(model_path, model_name).version
+    
+    # Always tag the model for clarity
+    client.set_model_version_tag(model_name, version, "task", "classification")
+    
+    if register_as_champion:
+        client.set_registered_model_alias(model_name, "champion", version)
+        logger.info(f"Model version {version} registered and aliased as 'champion'.")
+    else:
+        logger.info(f"Model version {version} registered without alias.")
+
 
 def model_selection(X_train: pd.DataFrame, 
                     X_test: pd.DataFrame, 
@@ -246,27 +263,34 @@ def model_selection(X_train: pd.DataFrame,
             logger.info("Best model precision on validation set: %0.2f%%", metrics['precision_test'] * 100)
             logger.info("Best model recall on validation set: %0.2f%%", metrics['recall_test'] * 100)
 
-        if champion_dict['f1_score_test'] < best_score:
-            logger.info(f"New champion model: {best_model_name} with test F1 {best_score:.4f} (previous {champion_dict['f1_score_test']:.4f})")
+            if champion_dict['f1_score_test'] < best_score:
+                logger.info(f"New champion model: {best_model_name} with test F1 {best_score:.4f} (previous {champion_dict['f1_score_test']:.4f})")
 
-            # Update YAML
-            update_parameters_yaml(
-                yaml_path="conf/base/parameters.yml",
-                new_model_name=best_model_name,
-                new_params=best_params
-            )
+                # Update YAML
+                update_parameters_yaml(
+                    yaml_path="conf/base/parameters.yml",
+                    new_model_name=best_model_name,
+                    new_params=best_params
+                )
 
-            # Register the new champion model in MLflow Model Registry
-            register_model(
-                model_path=f"runs:/{best_run_id}/model",
-                model_name="hotel_california_model",
-                model_tag="production",
-                model_alias="champion"
-            )
+                # Register the new champion model in MLflow Model Registry
+                register_model(
+                    model_path=f"runs:/{best_run_id}/model",
+                    model_name="hotel_california_model",
+                    register_as_champion=True  # ✅ set alias ONLY if truly best
+                )
 
-            return best_model, best_columns, metrics
+                return best_model, best_columns, metrics
 
-        else:
-            logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
+            else:
+                logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
 
-            return champion_model, best_columns, {"status": "unchanged"}
+                # Optional: Register the current (non-champion) model without alias for audit trail
+                register_model(
+                    model_path=f"runs:/{best_run_id}/model",
+                    model_name="hotel_california_model",
+                    register_as_champion=False
+                )
+
+                return champion_model, best_columns, {"status": "unchanged"}
+
