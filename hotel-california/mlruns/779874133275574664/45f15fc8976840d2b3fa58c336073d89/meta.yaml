@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/45f15fc8976840d2b3fa58c336073d89/artifacts
+end_time: 1751107864795
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 45f15fc8976840d2b3fa58c336073d89
+run_name: polite-ray-900
+run_uuid: 45f15fc8976840d2b3fa58c336073d89
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751107855540
+status: 3
+tags: []
+user_id: antoniooliveira

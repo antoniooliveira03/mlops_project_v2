@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/d0d0032e540b4b0b8b1d48b9a6310233/artifacts
+end_time: 1750946632002
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: d0d0032e540b4b0b8b1d48b9a6310233
+run_name: learned-croc-602
+run_uuid: d0d0032e540b4b0b8b1d48b9a6310233
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750946571772
+status: 3
+tags: []
+user_id: antoniooliveira

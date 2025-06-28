@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/72aa8991d0734a7593e148f9d79a13c0/artifacts
+end_time: 1750945431499
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 72aa8991d0734a7593e148f9d79a13c0
+run_name: popular-shoat-218
+run_uuid: 72aa8991d0734a7593e148f9d79a13c0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750945413848
+status: 3
+tags: []
+user_id: antoniooliveira

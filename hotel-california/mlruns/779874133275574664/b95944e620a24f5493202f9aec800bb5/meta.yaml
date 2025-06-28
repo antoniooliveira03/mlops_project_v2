@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/b95944e620a24f5493202f9aec800bb5/artifacts
+end_time: 1751104212903
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: b95944e620a24f5493202f9aec800bb5
+run_name: sincere-tern-475
+run_uuid: b95944e620a24f5493202f9aec800bb5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751104203395
+status: 3
+tags: []
+user_id: antoniooliveira

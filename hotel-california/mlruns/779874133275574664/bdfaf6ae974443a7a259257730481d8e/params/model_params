@@ -1,0 +1,1 @@
+{'colsample_bytree': 0.8, 'eval_metric': 'logloss', 'gamma': 0.1, 'learning_rate': 0.0001, 'max_depth': 6, 'n_estimators': 1000, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'subsample': 0.8}

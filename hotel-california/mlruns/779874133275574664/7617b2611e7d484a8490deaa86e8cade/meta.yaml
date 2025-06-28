@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/7617b2611e7d484a8490deaa86e8cade/artifacts
+end_time: 1751102948531
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 7617b2611e7d484a8490deaa86e8cade
+run_name: gaudy-sponge-144
+run_uuid: 7617b2611e7d484a8490deaa86e8cade
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751102936211
+status: 3
+tags: []
+user_id: antoniooliveira

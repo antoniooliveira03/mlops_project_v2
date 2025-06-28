@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "expectation_config": {
+    "expectation_type": "expect_column_values_to_be_unique",
+    "kwargs": {
+      "column": "BookingID",
+      "result_format": "BASIC"
+    },
+    "meta": {}
+  },
+  "result": {
+    "element_count": 1394,
+    "missing_count": 0,
+    "missing_percent": 0.0,
+    "unexpected_count": 0,
+    "unexpected_percent": 0.0,
+    "unexpected_percent_total": 0.0,
+    "unexpected_percent_nonmissing": 0.0,
+    "partial_unexpected_list": []
+  },
+  "meta": {},
+  "exception_info": {
+    "raised_exception": false,
+    "exception_traceback": null,
+    "exception_message": null
+  }
+}

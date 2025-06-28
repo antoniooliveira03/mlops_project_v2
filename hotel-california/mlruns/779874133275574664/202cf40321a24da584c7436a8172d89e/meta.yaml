@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/202cf40321a24da584c7436a8172d89e/artifacts
+end_time: 1750946239709
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 202cf40321a24da584c7436a8172d89e
+run_name: youthful-rook-354
+run_uuid: 202cf40321a24da584c7436a8172d89e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750946229439
+status: 3
+tags: []
+user_id: antoniooliveira

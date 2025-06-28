@@ -1,0 +1,6 @@
+artifact_location: /Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/880440352124053215
+creation_time: 1750774678583
+experiment_id: '880440352124053215'
+last_update_time: 1750774678583
+lifecycle_stage: active
+name: data_unit_tests_preprocessed_data

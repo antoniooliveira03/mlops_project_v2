@@ -1,0 +1,38 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.6
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.0
+mlflow_version: 2.10.1
+model_size_bytes: 345292
+model_uuid: a911fb2f76a44f69bcb3f6abb8bed250
+run_id: e429a160522f448fa97a285b23fa0375
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  type: dataframe
+signature:
+  inputs: '[{"type": "long", "name": "arrivalmonth", "required": true}, {"type": "long",
+    "name": "totalstaydays", "required": true}, {"type": "long", "name": "bookingtoarrivaldays",
+    "required": true}, {"type": "long", "name": "specialrequests", "required": true},
+    {"type": "long", "name": "confirmationtoarrivaldays", "required": true}, {"type":
+    "double", "name": "dailyrateeuros", "required": true}, {"type": "double", "name":
+    "dailyrateusd", "required": true}, {"type": "double", "name": "country_income_euros_y2",
+    "required": true}, {"type": "double", "name": "country_income_euros_y1", "required":
+    true}, {"type": "double", "name": "country_hdi_y1", "required": true}, {"type":
+    "long", "name": "arrivalweeknumber", "required": true}, {"type": "long", "name":
+    "arrivaldayofmonth", "required": true}, {"type": "double", "name": "arrivalhour",
+    "required": true}, {"type": "long", "name": "weekdaystays", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2025-06-28 10:20:47.325725'

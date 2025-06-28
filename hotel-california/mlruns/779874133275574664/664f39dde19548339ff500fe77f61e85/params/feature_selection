@@ -1,0 +1,1 @@
+{'encode_categoricals': True, 'methods': ['rfe', 'mutual_info', 'feature_importance'], 'n_features': 14}

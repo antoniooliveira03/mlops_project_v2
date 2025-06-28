@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/2a9a4b92ae834387bb10dd0d82972619/artifacts
+end_time: 1751106109970
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: 2a9a4b92ae834387bb10dd0d82972619
+run_name: suave-whale-165
+run_uuid: 2a9a4b92ae834387bb10dd0d82972619
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751106095583
+status: 3
+tags: []
+user_id: antoniooliveira

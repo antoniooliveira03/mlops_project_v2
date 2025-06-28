@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/antoniooliveira/Documents/GitHub/mlops_project_v2/hotel-california/mlruns/779874133275574664/fe9aa86fac354ac6b0931a01031c1a68/artifacts
+end_time: 1751105992863
+entry_point_name: ''
+experiment_id: '779874133275574664'
+lifecycle_stage: active
+run_id: fe9aa86fac354ac6b0931a01031c1a68
+run_name: sincere-snail-515
+run_uuid: fe9aa86fac354ac6b0931a01031c1a68
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751105984889
+status: 3
+tags: []
+user_id: antoniooliveira
