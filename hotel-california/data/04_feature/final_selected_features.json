@@ -1,0 +1,16 @@
+[
+  "arrivalmonth",
+  "totalstaydays",
+  "bookingtoarrivaldays",
+  "specialrequests",
+  "confirmationtoarrivaldays",
+  "dailyrateeuros",
+  "dailyrateusd",
+  "country_income_euros_y2",
+  "country_income_euros_y1",
+  "country_hdi_y1",
+  "arrivalweeknumber",
+  "arrivaldayofmonth",
+  "arrivalhour",
+  "weekdaystays"
+]
