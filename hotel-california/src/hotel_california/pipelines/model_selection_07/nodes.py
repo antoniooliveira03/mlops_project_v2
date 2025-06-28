@@ -12,6 +12,8 @@ from mlflow.tracking import MlflowClient
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
 import shap
 import matplotlib.pyplot as plt
 from mlflow.models.signature import infer_signature
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 models_dict = {
-    'RandomForestClassifier': RandomForestClassifier(),
+    'XGBClassifier': XGBClassifier(),
     # 'GradientBoostingClassifier': GradientBoostingClassifier(),
     # 'LogisticRegression': LogisticRegression()
 }
@@ -262,6 +264,7 @@ def model_selection(X_train: pd.DataFrame,
                 model_alias="champion"
             )
 
-            return best_model, best_columns, metrics
-    else:
-        logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
+        else:
+            logger.info(f"Champion model remains with test F1 {champion_dict['f1_score_test']:.4f}")
+
+        return best_model, best_columns, metrics

@@ -5,6 +5,9 @@ def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Serie
 
     df = data.copy()
 
+    # Sort by ArrivalMonth and ArrivalDay
+    df = df.sort_values(by=["ArrivalMonth", "ArrivalDayOfMonth", "ArrivalHour"]).reset_index(drop=True)
+
     # Extract target + BookingID
     target = df[["BookingID", "Canceled"]]
 
