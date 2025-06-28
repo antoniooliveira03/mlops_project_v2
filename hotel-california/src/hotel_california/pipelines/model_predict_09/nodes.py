@@ -37,7 +37,6 @@ def model_predict(X: pd.DataFrame, y, model, columns) -> Tuple[pd.DataFrame, Dic
     # If y is provided, calculate metrics (for classification)
     if y is not None:
         y.drop(['bookingid','arrivaltime'], axis=1, inplace=True)
-        logger.info(y.dtypes)
         metrics = {
             'accuracy': accuracy_score(y, y_pred),
             'f1_score': f1_score(y, y_pred),
