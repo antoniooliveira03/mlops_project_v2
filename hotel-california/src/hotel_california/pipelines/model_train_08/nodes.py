@@ -185,8 +185,9 @@ def model_train(
 
         # SHAP
         logger.info("Starting SHAP explainer selection...")
+        # Auto-select appropriate SHAP explainer
         try:
-            if hasattr(model, "predict_proba") and "tree" in model.__class__.__name__.lower():
+            if hasattr(model, "predict_proba") and "tree" in str(type(model)).lower():
                 explainer = shap.TreeExplainer(model)
                 logger.info("TreeExplainer selected for SHAP.")
             else:

@@ -666,6 +666,7 @@ dependencies = [
     { name = "kedro" },
     { name = "notebook" },
     { name = "shap" },
+
 ]
 
 [package.optional-dependencies]
@@ -872,6 +873,7 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12'",
     "python_full_version == '3.11.*'",
+    "python_full_version >= '3.11'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version >= '3.11' and sys_platform == 'win32'" },
