@@ -96,6 +96,7 @@ def model_train(
     except:
         model_class = model_registry[model_name]
         classifier = model_class(**parameters)
+        mlflow.get_parameters(parameters)
 
     with mlflow.start_run(experiment_id=experiment_id, nested=True) as run:
         run_id = run.info.run_id
@@ -105,6 +106,10 @@ def model_train(
         mlflow.set_tag("experiment_name", experiment_name)
         mlflow.set_tag("num_train_samples", str(X_train.shape[0]))
         mlflow.set_tag("num_test_samples", str(X_test.shape[0]))
+
+        # Log model parameters
+        if parameters is not None:
+            mlflow.log_params(parameters)
 
         if use_feature_selection:
             mlflow.set_tag("selected_features", ", ".join(best_columns))
@@ -122,11 +127,19 @@ def model_train(
         y_train = np.ravel(y_train[target_name])
         y_test = np.ravel(y_test[target_name])
 
+        logger.info("Starting feature selection and data preparation...")
+        if use_feature_selection:
+            logger.info(f"Selected features: {best_columns}")
+        else:
+            logger.info("No feature selection applied. Using all features.")
+
         logger.info("Training the model...")
         model = classifier.fit(X_train, y_train)
+        logger.info("Model training complete.")
 
         y_train_pred = model.predict(X_train)
         y_test_pred = model.predict(X_test)
+        logger.info("Predictions complete.")
 
         metrics = {
             'accuracy_train': accuracy_score(y_train, y_train_pred),
@@ -137,10 +150,12 @@ def model_train(
             'precision_test': precision_score(y_test, y_test_pred)
         }
 
+        logger.info("Logging metrics to MLflow...")
         for metric_name, value in metrics.items():
             mlflow.log_metric(metric_name, value)
 
         # Create figure with confusion matrix and feature importance
+        logger.info("Creating confusion matrix and feature importance plots...")
         fig, axes = plt.subplots(1, 2, figsize=(18, 8))
 
         cm = confusion_matrix(y_test, y_test_pred)
@@ -163,7 +178,9 @@ def model_train(
                         ha='center', va='center', fontsize=12)
 
         plt.tight_layout()
+        logger.info("Confusion matrix and feature importance plots created.")
         mlflow.log_figure(fig, "confusion_matrix_feature_importance.png")
+        logger.info("Figure logged to MLflow.")
         extra_plot = fig
 
         # SHAP
@@ -179,53 +196,80 @@ def model_train(
         except Exception as e:
             logger.error(f"Failed to create SHAP explainer: {e}")
             return None
+
         logger.info("Computing SHAP values...")
-        shap_values = explainer(X_train)
+        n_shap_features = 15
+
+        # Ensure sample_X columns and dtypes match training data exactly
+        sample_X = X_train.copy()
+        if sample_X.shape[0] > 1000:
+            sample_X = sample_X.sample(n=1000, random_state=42)
+        sample_X = sample_X[X_train.columns]  # enforce column order
+        sample_X = sample_X.astype(X_train.dtypes.to_dict())  # enforce dtypes
+
+        shap_values = explainer(sample_X)
         logger.info("SHAP values computed.")
 
-        # Binary classification: pick class 1 SHAP values if applicable
-        if len(shap_values.shape) == 3:
-            shap_vals = shap_values[:, :, 1]
+        # Handle binary classification with 3D shap_values (samples, features, classes)
+        if len(shap_values.values.shape) == 3:
+            shap_vals = shap_values.values[:, :, 1]
         else:
-            shap_vals = shap_values.values if hasattr(shap_values, "values") else shap_values
+            shap_vals = shap_values.values
 
-        # Compute mean absolute SHAP values for feature importance
         feature_importance = np.abs(shap_vals).mean(axis=0)
         importance_df = pd.DataFrame({
-            "feature": X_train.columns,
+            "feature": sample_X.columns,
             "importance": feature_importance
         }).sort_values(by="importance", ascending=False)
 
-        # Plot summary + feature importance
+        top_features = importance_df.head(n_shap_features)["feature"].tolist()
+        logger.info(f"Top {n_shap_features} features for SHAP: {top_features}")
+
         logger.info("Plotting SHAP summary and feature importance...")
         shap.initjs()
         fig, axs = plt.subplots(1, 2, figsize=(16, 6))
 
-        # SHAP summary plot
-        shap.summary_plot(shap_vals, X_train, feature_names=X_train.columns, show=False, ax=axs[0])
-        axs[0].set_title("SHAP Summary Plot")
+        # SHAP summary plot (top features only)
+        plt.sca(axs[0])
+        shap.summary_plot(
+            shap_vals[:, [sample_X.columns.get_loc(f) for f in top_features]],
+            sample_X[top_features],
+            feature_names=top_features,
+            show=False,
+            plot_size=None,
+            color_bar=True
+        )
+        axs[0].set_title("SHAP Summary Plot (Top 10 Features)")
 
-        # Feature importance bar plot
-        importance_df.head(20).plot(kind="barh", x="feature", y="importance", ax=axs[1], legend=False)
+        importance_df.head(n_shap_features).plot(
+            kind="barh",
+            x="feature",
+            y="importance",
+            ax=axs[1],
+            legend=False
+        )
         axs[1].invert_yaxis()
-        axs[1].set_title("Mean Absolute SHAP Feature Importance")
+        axs[1].set_title("Mean Absolute SHAP Feature Importance (Top 10)")
         axs[1].set_xlabel("Importance")
 
         plt.tight_layout()
-        logger.info("SHAP plots created.")
         shap_fig = fig
 
         # Log model explicitly with signature
+        logger.info("Logging model to MLflow with signature...")
         signature = infer_signature(X_train, y_train)
         mlflow.sklearn.log_model(model, "model", signature=signature)
+        logger.info("Model logged to MLflow.")
 
         # Register model in MLflow registry
+        logger.info("Registering model in MLflow registry...")
         register_model(
             model_path=f"runs:/{run_id}/model",
-            model_name="hotel_california",
+            model_name="hotel_california_model",
             model_tag="production",
             model_alias="champion"
         )
+        logger.info("Model registered in MLflow registry.")
 
         logger.info(f"Model training complete. Run ID: {run_id}")
         logger.info("Model accuracy on training set: %0.2f%%", metrics['accuracy_train'] * 100)
