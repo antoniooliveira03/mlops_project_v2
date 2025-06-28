@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/278277557834550612/f558da9abc8f469aae5109ad45c24f09/artifacts
+end_time: 1751118839824
+entry_point_name: ''
+experiment_id: '278277557834550612'
+lifecycle_stage: active
+run_id: f558da9abc8f469aae5109ad45c24f09
+run_name: youthful-fowl-467
+run_uuid: f558da9abc8f469aae5109ad45c24f09
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751118839341
+status: 3
+tags: []
+user_id: Salvador

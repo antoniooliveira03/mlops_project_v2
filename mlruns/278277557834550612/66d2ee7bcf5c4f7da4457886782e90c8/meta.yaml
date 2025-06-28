@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/278277557834550612/66d2ee7bcf5c4f7da4457886782e90c8/artifacts
+end_time: 1751118840626
+entry_point_name: ''
+experiment_id: '278277557834550612'
+lifecycle_stage: active
+run_id: 66d2ee7bcf5c4f7da4457886782e90c8
+run_name: redolent-shrike-844
+run_uuid: 66d2ee7bcf5c4f7da4457886782e90c8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751118839874
+status: 3
+tags: []
+user_id: Salvador
